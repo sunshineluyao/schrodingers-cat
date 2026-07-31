@@ -1,0 +1,10 @@
+# core
+numpy>=1.26
+pennylane>=0.36
+
+# figures & animations
+matplotlib>=3.8
+pillow>=10.0
+
+# notebook
+jupyter>=1.0
