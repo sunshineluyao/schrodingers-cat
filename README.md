@@ -1,422 +1,264 @@
-# Revisiting Schrodinger's Cat: A Complete Guide
+<div align="center">
 
-## PennyLane Quantum Challenge -- Intermediate Level
+<img src="assets/hero/banner.svg" alt="Revisiting Schrodinger's Cat — neon quantum banner" width="100%">
 
----
+# Revisiting Schrödinger's Cat
 
-## Table of Contents
+**The pop-culture story is wrong. Here is the physics — and a closed-form quantum circuit that actually puts the cat into a superposition.**
 
-1. [The Pop Culture Myth](#1-the-pop-culture-myth)
-2. [The Quantum Reality](#2-the-quantum-reality)
-3. [How to Actually Create a Schrodinger Cat](#3-how-to-actually-create-a-schrodinger-cat)
-4. [The Challenge](#4-the-challenge)
-5. [The Mathematical Solution](#5-the-mathematical-solution)
-6. [The Code Explained Line by Line](#6-the-code-explained-line-by-line)
-7. [Visualizations Explained](#7-visualizations-explained)
-8. [Verification Results](#8-verification-results)
-9. [References](#9-references)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb)
+[![License: MIT](https://img.shields.io/badge/License-MIT-34D399.svg)](LICENSE)
+[![Made with PennyLane](https://img.shields.io/badge/Made%20with-PennyLane-8B5CF6.svg)](https://pennylane.ai)
+
+</div>
 
 ---
 
-## 1. The Pop Culture Myth
+## TL;DR
 
-You have probably heard of Schrodinger's cat. The story usually goes like this:
+- **The myth:** "the cat is alive AND dead at the same time." **False** for the unmeasured cat — entanglement with the atom destroys the cat's quantum coherence. The cat is in a *classical* 50/50 state, like a coin you simply haven't looked at.
+- **The fix (quantum steering):** measure the *atom* in a cleverly rotated basis, and the cat is projected into a **genuine superposition** $|+\rangle = (|\text{alive}\rangle + |\text{dead}\rangle)/\sqrt{2}$.
+- **This repo:** the closed-form $U3(\theta,\phi,\lambda)$ solution for *any* entangling unitary, verified on **100/100 Haar-random unitaries** to machine precision (max error $2.4\times10^{-16}$).
 
-> A cat is placed in a sealed box with a radioactive atom. If the atom decays, a contraption kills the cat. After one half-life, the atom is in a superposition of "decayed" and "not decayed." Therefore, the cat must also be in a superposition of "alive" and "dead."
-
-In equations, people write:
-
-$$|+\rangle_A = \frac{1}{\sqrt{2}}|0\rangle_A + \frac{1}{\sqrt{2}}|1\rangle_A$$
-
-where $|0\rangle_A$ means "atom not decayed" and $|1\rangle_A$ means "atom decayed."
-
-And for the cat:
-
-$$|+\rangle_C = \frac{1}{\sqrt{2}}|0\rangle_C + \frac{1}{\sqrt{2}}|1\rangle_C$$
-
-where $|0\rangle_C$ means "cat alive" and $|1\rangle_C$ means "cat dead."
-
-**This story is wrong.** It makes a critical mistake: it ignores **entanglement**.
+**New to quantum computing?** Start with the [zero-prerequisites guide](docs/quantum-computing-101.md) (English + 中文速览) — coin-flip analogies only, no math required.
 
 ---
 
-## 2. The Quantum Reality
+## Watch the cat get steered
 
-### 2.1 Entanglement: The Missing Piece
+<div align="center">
+<img src="assets/anim/state_evolution.gif" alt="State evolution animation: four steps from |00> to the steered cat" width="760">
+</div>
 
-The atom and the cat are **strongly interacting systems**. The cat's life directly depends on the atom's state. In quantum mechanics, when two systems interact strongly, they become **entangled** -- their fates are linked.
-
-The correct description is not two separate superpositions. Instead, the **joint** atom-cat system evolves into a **maximally entangled Bell state**:
-
-$$|\psi\rangle_{AC} = \frac{1}{\sqrt{2}}|00\rangle_{AC} + \frac{1}{\sqrt{2}}|11\rangle_{AC}$$
-
-This means:
-- With 50% probability: atom is $|0\rangle$ (undecayed) AND cat is $|0\rangle$ (alive)
-- With 50% probability: atom is $|1\rangle$ (decayed) AND cat is $|1\rangle$ (dead)
-
-### 2.2 The Cat is NOT in a Superposition
-
-To find the state of the cat *alone*, we must "trace out" the atom (a mathematical operation called the **partial trace**). This gives us the cat's **reduced density matrix**:
-
-$$\rho_C = \text{Tr}_A(|\psi\rangle\langle\psi|_{AC}) = \frac{1}{2}\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}$$
-
-This is the **maximally mixed state** -- it represents classical uncertainty, not quantum superposition. It is mathematically identical to:
-
-> "The cat is either alive or dead, each with 50% probability, and I just don't know which."
-
-There is **no coherence**, no off-diagonal term, no superposition. The cat is simply either alive or dead -- we just haven't looked yet.
-
-### 2.3 The Key Difference
-
-| Property | Pop Culture (Wrong) | Quantum Reality (Correct) |
-|----------|--------------------|---------------------------|
-| Atom state | Superposition | Superposition |
-| Cat state | Superposition | **Mixed state** (classical) |
-| Atom-Cat together | Product state | **Entangled Bell state** |
-| Coherence | Present | **Absent** |
+Four steps, one idea: entangle → rotate the measurement basis → post-select on the atom → the cat lands in $|+\rangle$. Note the **negative phase** (magenta bar) in Step 3 — phase information that probability-only plots throw away.
 
 ---
 
-## 3. How to Actually Create a Schrodinger Cat
+## The Myth vs The Reality
 
-### 3.1 The Trick: Measure in a Rotated Basis
+<div align="center">
+<img src="assets/figures/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison: mixed state at center vs pure state on equator" width="900">
+</div>
 
-Can we ever put the cat in a true superposition? **Yes!** But we need a more sophisticated experiment.
+**Read the picture like a globe:** every *pure* quantum state is a point on the sphere's surface; the *center* is the maximally mixed state — a classical coin flip. Pop culture claims the cat sits on the equator automatically. In reality it sits at the center... until we steer it out to the surface.
 
-The entangled state $|\psi\rangle_{AC}$ can be rewritten in the **Hadamard basis** $\{|+\rangle, |-\rangle\}$:
+<div align="center">
+<img src="assets/anim/bloch_steering.gif" alt="Rotating Bloch sphere showing steering from center to surface" width="420">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="assets/figures/viz_density_matrix_city.png" alt="Density matrix city plot: zero off-diagonal coherence" width="420">
+</div>
 
-$$|\psi\rangle_{AC} = \frac{1}{\sqrt{2}}|++\rangle_{AC} + \frac{1}{\sqrt{2}}|--\rangle_{AC}$$
-
-This is a remarkable identity! It means:
-- If we measure the atom in the $\{|+\rangle, |-\rangle\}$ basis and find $|+\rangle_A$...
-- ...the cat **must** be in state $|+\rangle_C$!
-
-And $|+\rangle_C = \frac{1}{\sqrt{2}}(|\text{alive}\rangle + |\text{dead}\rangle)$ is exactly the Schrodinger cat -- a **genuine superposition** of alive and dead!
-
-### 3.2 The Quantum Circuit
-
-This measurement process is implemented by a quantum circuit:
-
-1. Start with $|0\rangle_{\text{atom}} \otimes |0\rangle_{\text{cat}}$
-2. Apply a unitary $U$ that entangles them (e.g., Hadamard + CNOT)
-3. Apply a $U3(\theta, \phi, \lambda)$ gate on the **atom** wire (this is the basis change)
-4. Measure the atom in the computational basis
-5. If the atom reads $|0\rangle$, the cat is in a uniform superposition!
-
-![Original Circuit](fig1_original_circuit.png)
-
-*Figure 1: The original Schrodinger cat circuit. The blue box is the entangling operation (Hadamard + CNOT). The second Hadamard on the atom changes the measurement basis. When the atom measures $|0\rangle$ (which corresponds to $|+\rangle$ in the original basis), the cat is in state $|+\rangle$.*
-
-### 3.3 The General Problem
-
-The challenge asks a **more general question**: Given *any* entangling unitary $U$, what $U3$ parameters should we use so that measuring the atom as $|0\rangle$ guarantees the cat is in a uniform superposition?
-
-![General Circuit](fig2_general_circuit.png)
-
-*Figure 2: The general circuit. Instead of Hadamard + CNOT, we have an arbitrary 4x4 unitary $U$. Instead of a fixed Hadamard, we need to find the right $U3(\theta, \phi, \lambda)$ parameters.*
+The density matrix says it in numbers: $\rho_C = \mathrm{diag}(1/2, 1/2)$, **off-diagonals exactly zero** — no coherence, no superposition, just classical ignorance.
 
 ---
 
-## 4. The Challenge
+## How it works
 
-### 4.1 What You Must Implement
+The original challenge circuit (top) and the general problem (bottom): for **any** entangling unitary $U$, find $U3(\theta,\phi,\lambda)$ such that measuring the atom as $|0\rangle$ guarantees a uniform cat superposition.
 
-Two functions:
+<div align="center">
+<img src="assets/figures/fig1_original_circuit.svg" alt="Original circuit: H, CNOT, H, measure" width="800">
+<img src="assets/figures/fig2_general_circuit.svg" alt="General circuit: arbitrary U, U3 to be solved" width="800">
+</div>
 
-**Function 1: `evolve_atom_cat(unitary, params)`**
-- A quantum circuit (QNode) that:
-  - Applies the given $4 \times 4$ unitary to the atom-cat system
-  - Applies $U3(\theta, \phi, \lambda)$ on the atom wire
-  - Returns the full state vector
+**Quantum steering, in one diagram:**
 
-**Function 2: `u3_parameters(unitary)`**
-- Given a unitary $U$, find the angles $[\theta, \phi, \lambda]$ such that when the atom is measured as $|0\rangle$, the cat is in a **uniform superposition** $(|\text{alive}\rangle + |\text{dead}\rangle)/\sqrt{2}$
-
-### 4.2 The Test
-
-The testing function checks:
-
-```python
-np.isclose(evolve_atom_cat(ins, output)[0], evolve_atom_cat(ins, output)[1], atol=5e-2)
+```mermaid
+flowchart LR
+    A["atom + cat<br/>both |0>"] --> B["entangle<br/>unitary U"]
+    B --> C{"how do you<br/>measure the atom?"}
+    C -->|"computational basis<br/>(do nothing)"| D["cat = I/2<br/>classical 50/50<br/>NO superposition"]
+    C -->|"U3(theta, phi, lambda)<br/>then measure"| E["cat = |+><br/>GENUINE superposition"]
 ```
 
-This means: **the amplitudes of $|00\rangle$ and $|01\rangle$ in the final state must be equal** (within 0.05 tolerance). When they are equal, the cat (conditioned on atom = $|0\rangle$) is in a uniform superposition.
-
 ---
 
-## 5. The Mathematical Solution
+## The complete solution (copy-paste runnable)
 
-### 5.1 Step-by-Step Derivation
-
-**Step 1: State after unitary**
-
-After applying $U$ to $|00\rangle$:
-
-$$|\psi_U\rangle = U|00\rangle = a|00\rangle + b|01\rangle + c|10\rangle + d|11\rangle$$
-
-The coefficients $a, b, c, d$ are simply the **first column of $U$**.
-
-**Step 2: Apply U3 on the atom**
-
-The $U3(\theta, \phi, \lambda)$ gate has the matrix:
-
-$$U3 = \begin{pmatrix} \cos\frac{\theta}{2} & -e^{i\lambda}\sin\frac{\theta}{2} \\ e^{i\phi}\sin\frac{\theta}{2} & e^{i(\phi+\lambda)}\cos\frac{\theta}{2} \end{pmatrix}$$
-
-When we apply $U3 \otimes I$ to $|\psi_U\rangle$, the amplitudes for $|00\rangle$ and $|01\rangle$ become:
-
-$$A_{00} = a \cos\frac{\theta}{2} - c \, e^{i\lambda} \sin\frac{\theta}{2}$$
-
-$$A_{01} = b \cos\frac{\theta}{2} - d \, e^{i\lambda} \sin\frac{\theta}{2}$$
-
-**Step 3: The constraint**
-
-For a uniform cat superposition, we need $A_{00} = A_{01}$:
-
-$$(a - b) \cos\frac{\theta}{2} = (c - d) \, e^{i\lambda} \sin\frac{\theta}{2}$$
-
-Define:
-- $\alpha = a - b$
-- $\beta = c - d$
-
-The equation becomes:
-
-$$\alpha \cos\frac{\theta}{2} = \beta \, e^{i\lambda} \sin\frac{\theta}{2}$$
-
-**Step 4: Solving**
-
-First, notice that $\phi$ **does not appear** in the equation! It only affects the $|1\rangle$ component of the atom's state, and we are post-selecting on the atom being $|0\rangle$. So $\phi$ is a free parameter (set to 0).
-
-Now solve for $\theta$ and $\lambda$ by cases:
-
-| Case | Condition | Solution |
-|------|-----------|----------|
-| **General** | $\|\alpha\| > 0$ and $\|\beta\| > 0$ | $\lambda = \arg(\alpha) - \arg(\beta)$, $\theta = 2 \arctan(\|\alpha\|/\|\beta\|)$ |
-| **Degenerate alpha** | $\|\alpha\| = 0$ | $\theta = 0$ (forces $\sin(\theta/2) = 0$) |
-| **Degenerate beta** | $\|\beta\| = 0$ | $\theta = \pi$ (forces $\cos(\theta/2) = 0$) |
-| **Both zero** | $\|\alpha\| = \|\beta\| = 0$ | Any $\theta, \lambda$ work |
-
-**Why this works:** We align the complex phases of both sides using $\lambda$, then balance the magnitudes using $\theta$.
-
----
-
-## 6. The Code Explained Line by Line
-
-### 6.1 Submission Code
+Requires `pip install pennylane`. This is the exact challenge submission plus a self-test:
 
 ```python
-import json
 import pennylane as qp
 import pennylane.numpy as np
-```
-> **Imports:** `pennylane` is imported as `qp` (matching the challenge starter code). `pennylane.numpy` provides a NumPy-compatible interface that works with PennyLane's automatic differentiation.
 
-```python
 dev = qp.device('default.qubit', wires=['atom', 'cat'])
-```
-> **Device setup:** Creates a quantum simulator with two qubits named `'atom'` and `'cat'`. The `default.qubit` backend is a statevector simulator, which lets us inspect the full quantum state.
 
-```python
 @qp.qnode(dev)
 def evolve_atom_cat(unitary, params):
-```
-> **QNode decorator:** Marks this function as a quantum node. PennyLane will automatically build the quantum circuit and compute the state.
-
-```python
+    """Apply the entangling unitary, then rotate the atom's measurement basis."""
     qp.QubitUnitary(unitary, wires=['atom', 'cat'])
-```
-> **Apply the unitary:** The $4 \times 4$ unitary matrix is applied to both qubits simultaneously. This encodes the entangling evolution of the atom-cat system.
-
-```python
     qp.U3(params[0], params[1], params[2], wires='atom')
-```
-> **Apply U3 on the atom:** This is the **change of basis** operation. By carefully choosing the parameters, we rotate the atom's state such that measuring $|0\rangle$ implies the cat is in a superposition.
-
-```python
     return qp.state()
-```
-> **Return the full state vector:** Instead of measuring, we return the entire 4-dimensional state vector $(A_{00}, A_{01}, A_{10}, A_{11})$ so the testing function can verify $A_{00} = A_{01}$.
 
-```python
 def u3_parameters(unitary):
-```
-> **Main solver function:** This is where the mathematics happens. Given any unitary, it computes the right $U3$ angles.
-
-```python
+    """Closed-form U3 angles for ANY 4x4 unitary (derivation below)."""
     psi_U = unitary @ np.array([1, 0, 0, 0], dtype=complex)
-```
-> **Apply U to |00>:** Matrix multiplication of $U$ with the vector $(1, 0, 0, 0)$ gives the first column of $U$, which is the state after evolution.
-
-```python
     a, b, c, d = psi_U[0], psi_U[1], psi_U[2], psi_U[3]
-```
-> **Extract amplitudes:** $a, b, c, d$ are the coefficients of $|00\rangle, |01\rangle, |10\rangle, |11\rangle$ respectively.
-
-```python
     alpha = a - b
-    beta  = c - d
-```
-> **Compute constraint coefficients:** These are the key quantities from our derivation.
-
-```python
-    phi = 0.0
-```
-> **phi is free:** As proven in the derivation, $\phi$ does not affect the condition $A_{00} = A_{01}$. We set it to 0.
-
-```python
+    beta = c - d
+    phi = 0.0                       # phi never enters the constraint
     abs_alpha = np.abs(alpha)
-    abs_beta  = np.abs(beta)
-```
-> **Compute magnitudes:** Needed to distinguish the cases.
-
-```python
+    abs_beta = np.abs(beta)
     if np.isclose(abs_alpha, 0) and np.isclose(abs_beta, 0):
-        theta, lam = 0.0, 0.0
-```
-> **Case 4:** Both coefficients vanish. Any parameters work; use zeros.
-
-```python
+        theta, lam = 0.0, 0.0       # any parameters work
     elif np.isclose(abs_alpha, 0):
-        theta, lam = 0.0, 0.0
-```
-> **Case 2:** $\alpha = 0$. We need $\sin(\theta/2) = 0$, so $\theta = 0$.
-
-```python
+        theta, lam = 0.0, 0.0       # force sin(theta/2) = 0
     elif np.isclose(abs_beta, 0):
-        theta, lam = np.pi, 0.0
-```
-> **Case 3:** $\beta = 0$. We need $\cos(\theta/2) = 0$, so $\theta = \pi$.
-
-```python
+        theta, lam = np.pi, 0.0     # force cos(theta/2) = 0
     else:
-        lam = np.angle(alpha) - np.angle(beta)
-        theta = 2 * np.arctan(abs_alpha / abs_beta)
-```
-> **Case 1 (General):** 
-> - `lam = np.angle(alpha) - np.angle(beta)` aligns the complex phases of both sides
-> - `theta = 2 * np.arctan(abs_alpha / abs_beta)` balances the magnitudes
-
-```python
+        lam = np.angle(alpha) - np.angle(beta)   # align phases
+        theta = 2 * np.arctan(abs_alpha / abs_beta)  # balance magnitudes
     return np.array([theta, phi, lam])
+
+# ---- self-test: Bell-state unitary (Hadamard + CNOT) ----
+if __name__ == "__main__":
+    H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
+    CNOT = np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]], dtype=complex)
+    U_bell = CNOT @ np.kron(H, np.eye(2))
+
+    params = u3_parameters(U_bell)
+    state = evolve_atom_cat(U_bell, params)
+    print("U3 params (theta, phi, lambda):", params)   # expect (pi/2, 0, -pi)
+    print("A_00 =", state[0], " A_01 =", state[1])     # must be equal
+    assert np.isclose(state[0], state[1], atol=5e-2), "challenge test FAILED"
+    print("PASS: the cat is in a uniform superposition")
 ```
-> **Return parameters:** The function returns $[\theta, \phi, \lambda]$ in the order expected by `evolve_atom_cat`.
+
+Expected output:
+
+```text
+U3 params (theta, phi, lambda): [ 1.57079633  0.         -3.14159265]
+A_00 = (0.5+0j)  A_01 = (0.5+0j)
+PASS: the cat is in a uniform superposition
+```
+
+A **PennyLane-free** version (pure NumPy, includes the 100-random-unitary stress test) is in [`scripts/quantum_sandbox.py`](scripts/quantum_sandbox.py) — ideal for a first run.
 
 ---
 
-## 7. Visualizations Explained
+## The mathematical solution (fold in if curious)
 
-### 7.1 State Evolution (Test Case 1)
+<details>
+<summary><b>Click to expand the full derivation</b></summary>
 
-![State Evolution](viz_state_evolution.png)
+**Step 1 — state after the unitary.** With input $|00\rangle$:
 
-This 4-panel figure shows what happens step-by-step for the Bell state test case:
+$$|\psi_U\rangle = U|00\rangle = a|00\rangle + b|01\rangle + c|10\rangle + d|11\rangle,$$
 
-**Panel 1 (Top Left):** The initial state is $|00\rangle$ -- the atom is undecayed and the cat is alive. Only the $|00\rangle$ bar is visible (probability = 1).
+where $(a,b,c,d)$ is simply the **first column of $U$**.
 
-**Panel 2 (Top Right):** After the unitary $U$ (Hadamard + CNOT), the state becomes the Bell state $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$. The system is now **entangled**. You can see that only $|00\rangle$ and $|11\rangle$ have non-zero probability.
+**Step 2 — apply $U3 \otimes I$.** The $U3(\theta,\phi,\lambda)$ gate is
 
-**Panel 3 (Bottom Left):** After applying $U3(\pi/2, 0, -\pi)$ on the atom, the state becomes $\frac{1}{2}(|00\rangle + |01\rangle + |10\rangle - |11\rangle)$. All four basis states now have equal probability (0.25 each). Notice that $|00\rangle$ and $|01\rangle$ have **exactly the same amplitude** (0.5) -- this is the key!
+$$U3 = \begin{pmatrix} \cos\frac{\theta}{2} & -e^{i\lambda}\sin\frac{\theta}{2} \\ e^{i\phi}\sin\frac{\theta}{2} & e^{i(\phi+\lambda)}\cos\frac{\theta}{2} \end{pmatrix}.$$
 
-**Panel 4 (Bottom Right):** If we condition on the atom being $|0\rangle$, the cat's state is $\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle) = |+\rangle$. Both alive and dead have 50% probability. The cat is in a **genuine quantum superposition** -- a Schrodinger cat!
+The amplitudes that keep the atom at $|0\rangle$ become
 
-### 7.2 Parameter Analysis
+$$A_{00} = a\cos\tfrac{\theta}{2} - c\,e^{i\lambda}\sin\tfrac{\theta}{2},\qquad
+A_{01} = b\cos\tfrac{\theta}{2} - d\,e^{i\lambda}\sin\tfrac{\theta}{2}.$$
 
-![Parameter Analysis](viz_parameter_analysis.png)
+**Step 3 — the constraint.** A uniform cat superposition needs $A_{00} = A_{01}$. With $\alpha = a-b$ and $\beta = c-d$:
 
-This figure analyzes how the solution behaves across 50 random unitaries:
+$$\alpha\cos\tfrac{\theta}{2} = \beta\,e^{i\lambda}\sin\tfrac{\theta}{2}.$$
 
-**Top Left (Theta Distribution):** The $\theta$ parameter is distributed across $(0, \pi)$. There is no preferred value -- it depends entirely on the input unitary. The red dashed line at 90 degrees marks the Bell state case.
+**Step 4 — solve.** $\phi$ never appears (it only touches the atom's $|1\rangle$ branch, which we discard), so set $\phi = 0$. Then:
 
-**Top Right (Lambda Distribution):** The $\lambda$ parameter is uniformly distributed across $(-\pi, \pi)$. It must align the complex phases, which are random for random unitaries.
+| Case | Condition | Solution |
+|---|---|---|
+| General | $\|\alpha\|>0, \|\beta\|>0$ | $\lambda = \arg(\alpha)-\arg(\beta)$, $\theta = 2\arctan(\|\alpha\|/\|\beta\|)$ |
+| Degenerate $\alpha$ | $\|\alpha\|=0$ | $\theta = 0$ |
+| Degenerate $\beta$ | $\|\beta\|=0$ | $\theta = \pi$ |
+| Both zero | $\|\alpha\|=\|\beta\|=0$ | any $\theta,\lambda$ |
 
-**Bottom Left (Theta vs Lambda):** A scatter plot showing all parameter pairs. The color represents the numerical error $|A_{00} - A_{01}|$. All points are green/dark, meaning the error is essentially zero (machine precision, ~$10^{-16}$).
+**Intuition:** $\lambda$ aligns the complex phases of both sides; $\theta$ balances their magnitudes.
 
-**Bottom Right (Cat State Norm):** The norm of the conditional cat state varies significantly. This represents the *probability* of getting the atom measurement outcome $|0\rangle$. Sometimes the cat state has large amplitude (high probability of success), sometimes small -- but when it succeeds, it's always a perfect uniform superposition.
+The original line-by-line code walkthrough lives in the [notebook](Revisiting_Schrodinger's_Cat.ipynb) and the [zero-prerequisites guide](docs/quantum-computing-101.md).
 
-### 7.3 Pop Culture vs Reality
-
-![Pop Culture vs Reality](viz_popculture_vs_reality.png)
-
-**Top Left:** Compares the pop culture description (cat in superposition, coherence = 0.5) with the actual physics (cat in mixed state, coherence = 0.0). Both have the same probabilities (50/50), but only the superposition has quantum coherence.
-
-**Top Right:** The reduced density matrix of the cat. The off-diagonal elements are zero -- this is a **mixed state**, not a superposition. The cat is either alive or dead classically.
-
-**Bottom Left:** The Bloch sphere representation. The green star marks the target state $|+\rangle = (1, 0)$ on the equator. The red dot shows where our actual cat state lands -- exactly on target! The equatorial view shows the $x$-$y$ plane of the Bloch sphere.
-
-**Bottom Right:** A summary table of test results. All tests pass.
+</details>
 
 ---
 
-## 8. Verification Results
+## Does the solution always exist? Yes — here is the map
 
-| Test | Description | Parameters Found | Result |
-|------|-------------|-----------------|--------|
-| Test 1 | Bell state unitary (Hadamard + CNOT) | $\theta = \pi/2, \phi = 0, \lambda = -\pi$ | PASS |
-| Test 2 | Random 4x4 unitary | $\theta = 0.547, \phi = 0, \lambda = 0$ | PASS |
-| Check | evolve_atom_cat(U1, [1,1,1])[0] == 0.62054458 | N/A | PASS |
+<div align="center">
+<img src="assets/figures/viz_parameter_analysis.png" alt="Parameter analysis: histograms and 3D cylinder of solutions" width="1000">
+</div>
+
+We drew 50 Haar-random $4\times4$ unitaries and solved for $(\theta,\lambda)$ with the closed form above. Because $\lambda$ is an angle, the natural home of the solutions is a **cylinder** ($\theta$ = height, $\lambda$ = wrap-around), shown in 3D on the right. Every point is green: error at machine precision, every single time.
+
+---
+
+## Verification results
+
+| Test | Description | Parameters found | Result |
+|---|---|---|---|
+| Test 1 | Bell-state unitary (H + CNOT) | $\theta=\pi/2,\ \phi=0,\ \lambda=-\pi$ | PASS |
+| Test 2 | Random 4×4 unitary | $\theta=0.547,\ \phi=0,\ \lambda=0$ | PASS |
 | Stress | 100 Haar-random unitaries | various | **100/100 PASS** |
 | Edge | Identity, SWAP, CNOT, phase gates | various | ALL PASS |
 
-**Maximum numerical error:** $3.61 \times 10^{-16}$ (machine precision)
+**Maximum numerical error:** $2.4\times10^{-16}$ (machine precision).
 
 ---
 
-## 9. References
+## Repository map
 
-### Primary Sources
+```text
+├── Revisiting_Schrodinger's_Cat.ipynb   # the full notebook (open in Colab!)
+├── assets/
+│   ├── hero/banner.svg                  # header banner
+│   ├── figures/                         # all static figures (SVG + PNG)
+│   └── anim/                            # GIF animations (GitHub-safe)
+├── scripts/
+│   ├── quantum_sandbox.py               # NumPy-only solver + stress test (start here)
+│   └── generate_figures.py              # regenerate every figure & GIF in this repo
+├── docs/
+│   └── quantum-computing-101.md         # zero-prerequisites guide (EN + 中文速览)
+└── requirements.txt
+```
 
-1. **PennyLane U3 Gate Documentation**  
-   https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html  
-   The exact matrix definition used in the solution.
+## Reproduce everything
 
-2. **PennyLane Challenges**  
-   https://pennylane.ai/challenges/schrodingers_cat  
-   The original challenge page.
+```bash
+git clone https://github.com/sunshineluyao/schrodingers-cat.git
+cd schrodingers-cat
+pip install -r requirements.txt
 
-### Quantum Mechanics Textbooks
+# 1. run the math (no quantum hardware needed, pure simulation)
+python scripts/quantum_sandbox.py
 
-3. **Nielsen & Chuang, "Quantum Computation and Quantum Information"** (10th Anniversary Edition, Cambridge University Press, 2010)  
-   - Chapter 2: Postulates of quantum mechanics, density operators  
-   - Chapter 4: Entanglement, Bell states, Schmidt decomposition  
-   - The definitive reference for understanding why the pop-culture description of Schrodinger's cat is wrong and what entanglement really means.
+# 2. regenerate all figures and GIFs
+python scripts/generate_figures.py            # writes into ./assets
 
-4. **Schrodinger, E. (1935). "Die gegenwartige Situation in der Quantenmechanik."** *Naturwissenschaften*, 23, 807-812.  
-   The original paper introducing the cat thought experiment (in German).
-
-5. **Von Neumann, J. (1932). "Mathematische Grundlagen der Quantenmechanik."** Springer.  
-   The foundational treatment of quantum measurement and wave function collapse.
-
-### Quantum Measurement Theory
-
-6. **Wiseman, H. M. & Milburn, G. J., "Quantum Measurement and Control"** (Cambridge University Press, 2009)  
-   Chapter on quantum steering and post-selected measurements -- the physical mechanism used in this challenge.
-
-7. **Brun, T. A. (2002). "A simple model of quantum trajectories."** *American Journal of Physics*, 70(7), 719-737.  
-   Discusses how post-selected measurements can create superposition states.
-
-### Random Matrix Theory
-
-8. **Mezzadri, F. (2007). "How to generate random matrices from the classical compact groups."** *Notices of the AMS*, 54(5), 592-604.  
-   Mathematical foundation for generating Haar-random unitaries used in stress testing.
+# 3. or explore interactively
+jupyter notebook "Revisiting_Schrodinger's_Cat.ipynb"
+```
 
 ---
 
-## Glossary
+## References
 
-| Term | Definition |
-|------|------------|
-| **Qubit** | Quantum bit -- the basic unit of quantum information. Can be in states $|0\rangle$, $|1\rangle$, or any superposition. |
-| **Superposition** | A quantum state that is a linear combination of basis states, e.g., $\alpha|0\rangle + \beta|1\rangle$. |
-| **Entanglement** | When two quantum systems have correlated states that cannot be described independently. Measuring one instantly determines the other. |
-| **Bell State** | A maximally entangled state of two qubits, e.g., $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$. |
-| **Density Matrix** | A mathematical object that generalizes the state vector. A pure state has $\rho^2 = \rho$; a mixed state does not. |
-| **Partial Trace** | An operation that "traces out" (ignores) one subsystem to get the state of the other. |
-| **Mixed State** | A statistical mixture of pure states, represented by a density matrix with $\text{Tr}(\rho^2) < 1$. |
-| **U3 Gate** | A general single-qubit unitary gate parameterized by three angles $(\theta, \phi, \lambda)$. |
-| **Post-Selection** | Keeping only the experimental runs where a particular measurement outcome occurred. |
-| **Quantum Steering** | Using measurements on one half of an entangled system to "steer" the other half into a desired state. |
-| **Bloch Sphere** | A geometric representation of a single qubit's state as a point on (or inside) a unit sphere. |
+1. PennyLane U3 gate documentation — https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html
+2. PennyLane Challenges: Schrödinger's Cat — https://pennylane.ai/challenges/schrodingers_cat
+3. Nielsen & Chuang, *Quantum Computation and Quantum Information* (Cambridge, 2010), ch. 2 & 4
+4. Schrödinger, E. (1935), "Die gegenwärtige Situation in der Quantenmechanik", *Naturwissenschaften* 23, 807–812
+5. Wiseman & Milburn, *Quantum Measurement and Control* (Cambridge, 2009) — quantum steering & post-selection
+6. Mezzadri, F. (2007), "How to generate random matrices from the classical compact groups", *Notices of the AMS* 54(5), 592–604
+
+## Cite this repository
+
+```bibtex
+@misc{zhang2026schrodingerscat,
+  author       = {Zhang, Luyao (Sunshine)},
+  title        = {Revisiting Schr\"{o}dinger's Cat: A Complete Guide
+                  (PennyLane Quantum Challenge)},
+  year         = {2026},
+  howpublished = {\url{https://github.com/sunshineluyao/schrodingers-cat}},
+  note         = {Closed-form U3 steering solution, verified on 100 Haar-random unitaries}
+}
+```
 
 ---
 
-*Written for the PennyLane "Revisiting Schrodinger's Cat" challenge.*  
-*Date: June 2026*
+<div align="center">
+<sub>Written for the PennyLane "Revisiting Schrödinger's Cat" challenge · June 2026 · all figures reproducible via scripts/generate_figures.py</sub>
+</div>
