@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/hero/banner.svg" alt="Revisiting Schrodinger's Cat — neon quantum banner" width="100%">
+<img src="assets/hero/schrodingers-cat-banner-social-preview.png" alt="Revisiting Schrödinger's Cat — the steered cat banner" width="100%">
 
 # Revisiting Schrödinger's Cat
 
@@ -51,6 +51,10 @@ Four steps, one idea: entangle → rotate the measurement basis → post-select 
 The density matrix says it in numbers: $\rho_C = \mathrm{diag}(1/2, 1/2)$, **off-diagonals exactly zero** — no coherence, no superposition, just classical ignorance.
 
 ---
+
+<div align="center">
+<img src="assets/hero/banner.svg" alt="Dark-neon circuit banner" width="100%">
+</div>
 
 ## How it works
 
@@ -213,6 +217,8 @@ We drew 50 Haar-random $4\times4$ unitaries and solved for $(\theta,\lambda)$ wi
 │   └── generate_figures.py              # regenerate every figure & GIF in this repo
 ├── docs/
 │   └── quantum-computing-101.md         # zero-prerequisites guide (EN + 中文速览)
+├── certificates/                        # PennyLane challenge & WISER 2026 certificates
+├── CITATION.cff                         # citation metadata (powers GitHub's "Cite" button)
 └── requirements.txt
 ```
 
@@ -235,6 +241,20 @@ jupyter notebook "Revisiting_Schrodinger's_Cat.ipynb"
 
 ---
 
+## Certificates
+
+This project was completed as part of the **PennyLane "Revisiting Schrödinger's Cat" challenge** and the **WISER 2026 summer program**.
+
+<div align="center">
+<img src="certificates/pennylane-certificacte-wiser-2026.png" alt="PennyLane challenge certificate — WISER 2026" width="440">
+&nbsp;&nbsp;
+<img src="certificates/Wiser2026SummerCertificate_Sunshine.png" alt="WISER 2026 summer program certificate" width="440">
+</div>
+
+All certificate files (PDF / PNG / SVG) are collected in [`certificates/`](certificates/).
+
+---
+
 ## References
 
 1. PennyLane U3 gate documentation — https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html
@@ -246,14 +266,16 @@ jupyter notebook "Revisiting_Schrodinger's_Cat.ipynb"
 
 ## Cite this repository
 
+This repository ships a [`CITATION.cff`](CITATION.cff) file — GitHub automatically shows a **"Cite this repository"** button in the right sidebar (APA & BibTeX export). If you use this work, please cite:
+
 ```bibtex
 @misc{zhang2026schrodingerscat,
-  author       = {Zhang, Luyao (Sunshine)},
-  title        = {Revisiting Schr\"{o}dinger's Cat: A Complete Guide
-                  (PennyLane Quantum Challenge)},
-  year         = {2026},
-  howpublished = {\url{https://github.com/sunshineluyao/schrodingers-cat}},
-  note         = {Closed-form U3 steering solution, verified on 100 Haar-random unitaries}
+  author = {Zhang, Luyao (Sunshine)},
+  title  = {Revisiting Schr\"{o}dinger's Cat: A Complete Guide
+            (PennyLane Quantum Challenge)},
+  year   = {2026},
+  url    = {https://github.com/sunshineluyao/schrodingers-cat},
+  note   = {Closed-form U3 steering solution, verified on 100 Haar-random unitaries}
 }
 ```
 
