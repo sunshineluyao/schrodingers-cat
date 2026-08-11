@@ -10,6 +10,8 @@ Usage:
 
 import argparse
 import os
+import re
+from pathlib import Path
 
 import numpy as np
 
@@ -61,6 +63,31 @@ def set_rcparams():
             "svg.fonttype": "none",
         }
     )
+
+
+def sanitize_svg_for_web(svg_path):
+    """Remove XML features that strict browser uploaders reject.
+
+    Matplotlib emits an external SVG 1.1 ``DOCTYPE`` and an RDF metadata
+    block. Neither affects rendering, but the external declaration can cause
+    security-focused uploaders to reject an otherwise safe static SVG.
+    """
+    path = Path(svg_path)
+    source = path.read_text(encoding="utf-8")
+    cleaned = re.sub(r"<!DOCTYPE svg\b[^>]*>\s*", "", source,
+                     flags=re.IGNORECASE | re.DOTALL)
+    cleaned = re.sub(r"\s*<metadata>.*?</metadata>\s*", "\n", cleaned,
+                     flags=re.IGNORECASE | re.DOTALL)
+
+    unsafe = re.search(
+        r"<script\b|(?:href|xlink:href)\s*=\s*[\"'](?:https?:|//|data:|javascript:)",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    if unsafe:
+        raise ValueError(f"Unsafe external SVG content remains in {path}")
+
+    path.write_text(cleaned, encoding="utf-8")
 
 
 def style_ax_dark(ax, grid=True):
@@ -350,8 +377,10 @@ def fig1_original_circuit(outdir):
     )
     fig.savefig(os.path.join(outdir, "figures", "fig1_original_circuit.png"),
                 facecolor=BG, bbox_inches="tight", pad_inches=0.25)
-    fig.savefig(os.path.join(outdir, "figures", "fig1_original_circuit.svg"),
+    svg_path = os.path.join(outdir, "figures", "fig1_original_circuit.svg")
+    fig.savefig(svg_path,
                 facecolor=BG, bbox_inches="tight", pad_inches=0.25)
+    sanitize_svg_for_web(svg_path)
     plt.close(fig)
 
 
@@ -405,8 +434,10 @@ def fig2_general_circuit(outdir):
     )
     fig.savefig(os.path.join(outdir, "figures", "fig2_general_circuit.png"),
                 facecolor=BG, bbox_inches="tight", pad_inches=0.25)
-    fig.savefig(os.path.join(outdir, "figures", "fig2_general_circuit.svg"),
+    svg_path = os.path.join(outdir, "figures", "fig2_general_circuit.svg")
+    fig.savefig(svg_path,
                 facecolor=BG, bbox_inches="tight", pad_inches=0.25)
+    sanitize_svg_for_web(svg_path)
     plt.close(fig)
 
 
@@ -863,8 +894,9 @@ def hero_banner(outdir):
              "PennyLane challenge · closed-form solution · 100/100 random tests",
              color=CYAN, fontsize=13.5, ha="left", va="center", weight="bold")
 
-    fig.savefig(os.path.join(outdir, "hero", "banner.svg"), facecolor=BG,
-                bbox_inches="tight", pad_inches=0.15)
+    svg_path = os.path.join(outdir, "hero", "banner.svg")
+    fig.savefig(svg_path, facecolor=BG, bbox_inches="tight", pad_inches=0.15)
+    sanitize_svg_for_web(svg_path)
     plt.close(fig)
 
 
