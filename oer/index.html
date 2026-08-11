@@ -1,0 +1,1877 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A zero-prerequisite interactive OER about post-selection, conditional fidelity, and physical validity in PennyLane's Schrödinger's Cat challenge.">
+  <meta name="theme-color" content="#080c19">
+  <title>Did We Really Prepare the Quantum Cat?</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080c19;
+      --bg-soft: #0d1427;
+      --panel: rgba(18, 29, 54, 0.76);
+      --panel-strong: #121d36;
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #edf4ff;
+      --muted: #a5b4ce;
+      --cyan: #22d3ee;
+      --blue: #60a5fa;
+      --violet: #8b5cf6;
+      --magenta: #e879f9;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #fb7185;
+      --max: 1160px;
+      --radius: 28px;
+      --shadow: 0 30px 90px rgba(0, 0, 0, 0.34);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 5.5rem;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(34, 211, 238, 0.09), transparent 26rem),
+        radial-gradient(circle at 92% 18%, rgba(139, 92, 246, 0.14), transparent 30rem),
+        radial-gradient(circle at 50% 62%, rgba(232, 121, 249, 0.05), transparent 36rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.32;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 88%);
+    }
+
+    a { color: inherit; }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    button { font: inherit; }
+
+    :focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 4px;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 1rem;
+      top: -5rem;
+      z-index: 100;
+      padding: 0.75rem 1rem;
+      color: #07111b;
+      background: var(--amber);
+      border-radius: 999px;
+      font-weight: 800;
+      transition: top 180ms ease;
+    }
+
+    .skip-link:focus { top: 1rem; }
+
+    .scroll-progress {
+      position: fixed;
+      inset: 0 auto auto 0;
+      z-index: 90;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--magenta));
+      box-shadow: 0 0 22px rgba(34, 211, 238, 0.9);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      background: rgba(8, 12, 25, 0.76);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-inner {
+      width: min(calc(100% - 2rem), var(--max));
+      min-height: 70px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.72rem;
+      text-decoration: none;
+      font-weight: 820;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(34, 211, 238, 0.42);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.2), transparent 62%);
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.18);
+    }
+
+    .brand-mark::before {
+      content: "ψ";
+      color: var(--cyan);
+      font-family: Georgia, serif;
+      font-size: 1.15rem;
+    }
+
+    .topnav {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .topnav a {
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    .topnav a:hover { color: var(--text); }
+
+    .container {
+      width: min(calc(100% - 2rem), var(--max));
+      margin: 0 auto;
+    }
+
+    .scene {
+      position: relative;
+      padding: clamp(5rem, 9vw, 9rem) 0;
+    }
+
+    .scene + .scene {
+      border-top: 1px solid rgba(148, 163, 184, 0.11);
+    }
+
+    .hero {
+      min-height: calc(100svh - 70px);
+      display: grid;
+      place-items: center;
+      padding-top: clamp(3rem, 7vw, 6rem);
+      isolation: isolate;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(340px, 0.92fr);
+      align-items: center;
+      gap: clamp(2.5rem, 6vw, 5.5rem);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin: 0 0 1.1rem;
+      color: var(--cyan);
+      font-size: 0.77rem;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 1.75rem;
+      height: 1px;
+      background: currentColor;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 11ch;
+      margin-bottom: 1.5rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3.4rem, 7.4vw, 7.25rem);
+      font-weight: 500;
+      line-height: 0.92;
+      letter-spacing: -0.064em;
+    }
+
+    h1 .glow-word {
+      color: transparent;
+      background: linear-gradient(105deg, var(--cyan), #b9a9ff 54%, var(--magenta));
+      background-clip: text;
+      -webkit-background-clip: text;
+      filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.22));
+    }
+
+    .hero-lede {
+      max-width: 44rem;
+      margin-bottom: 2rem;
+      color: #c6d1e5;
+      font-size: clamp(1.08rem, 1.6vw, 1.34rem);
+      line-height: 1.7;
+    }
+
+    .hero-lede strong { color: var(--text); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      min-height: 50px;
+      padding: 0.72rem 1.16rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(255,255,255,0.045);
+      text-decoration: none;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(34, 211, 238, 0.55);
+      background: rgba(34, 211, 238, 0.08);
+    }
+
+    .button.primary {
+      color: #06121a;
+      border-color: transparent;
+      background: linear-gradient(110deg, var(--cyan), #88e7f4);
+      box-shadow: 0 15px 44px rgba(34, 211, 238, 0.22);
+    }
+
+    .button.primary:hover { background: linear-gradient(110deg, #67e8f9, #c4f4fa); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem 1.25rem;
+      margin-top: 1.45rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .hero-meta span::before {
+      content: "•";
+      margin-right: 0.55rem;
+      color: var(--violet);
+    }
+
+    .quantum-stage {
+      position: relative;
+      min-height: 540px;
+      display: grid;
+      place-items: center;
+      perspective: 1000px;
+    }
+
+    .quantum-stage::before,
+    .quantum-stage::after {
+      content: "";
+      position: absolute;
+      border: 1px solid rgba(34, 211, 238, 0.24);
+      border-radius: 50%;
+      animation: spin 18s linear infinite;
+    }
+
+    .quantum-stage::before {
+      width: 88%;
+      aspect-ratio: 1;
+      transform: rotateX(67deg) rotateZ(10deg);
+    }
+
+    .quantum-stage::after {
+      width: 68%;
+      aspect-ratio: 1;
+      border-color: rgba(232, 121, 249, 0.24);
+      transform: rotateY(64deg) rotateZ(-15deg);
+      animation-direction: reverse;
+      animation-duration: 14s;
+    }
+
+    .hero-card {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 550px);
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 34px;
+      background: rgba(13, 20, 39, 0.78);
+      box-shadow: var(--shadow), 0 0 80px rgba(139, 92, 246, 0.15);
+      transform: translateY(var(--parallax-y, 0)) rotateX(2deg) rotateY(-3deg);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-card img {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      object-fit: cover;
+      opacity: 0.92;
+    }
+
+    .hero-card-copy {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.15rem 1.3rem 1.25rem;
+    }
+
+    .hero-card-copy strong {
+      display: block;
+      font-size: 1.03rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-card-copy small { color: var(--muted); }
+
+    .pass-pill {
+      flex: 0 0 auto;
+      padding: 0.46rem 0.72rem;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 999px;
+      color: var(--amber);
+      background: rgba(251, 191, 36, 0.08);
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+    }
+
+    .floating-note {
+      position: absolute;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      max-width: 210px;
+      padding: 0.8rem 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: #dce8fa;
+      background: rgba(8, 12, 25, 0.88);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.32);
+      font-size: 0.79rem;
+      font-weight: 750;
+      backdrop-filter: blur(10px);
+    }
+
+    .floating-note::before {
+      content: "";
+      flex: 0 0 9px;
+      width: 9px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 18px var(--cyan);
+    }
+
+    .floating-note.top { top: 10%; right: -2%; }
+    .floating-note.bottom { bottom: 12%; left: -5%; }
+    .floating-note.bottom::before { background: var(--magenta); box-shadow: 0 0 18px var(--magenta); }
+
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
+      align-items: start;
+      gap: clamp(2rem, 7vw, 7rem);
+    }
+
+    .chapter-marker {
+      position: sticky;
+      top: 7rem;
+      padding-top: 0.35rem;
+    }
+
+    .chapter-number {
+      display: block;
+      margin-bottom: 1rem;
+      color: var(--cyan);
+      font-family: Georgia, serif;
+      font-size: 4rem;
+      line-height: 1;
+      opacity: 0.72;
+    }
+
+    .chapter-marker p {
+      max-width: 17ch;
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 760;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .chapter-content > :last-child { margin-bottom: 0; }
+
+    h2 {
+      max-width: 15ch;
+      margin-bottom: 1.5rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.55rem, 5.2vw, 5.25rem);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.052em;
+    }
+
+    h3 {
+      margin-bottom: 0.62rem;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      letter-spacing: -0.018em;
+    }
+
+    .section-lede {
+      max-width: 47rem;
+      margin-bottom: 2.4rem;
+      color: #c2cde1;
+      font-size: clamp(1.04rem, 1.6vw, 1.28rem);
+    }
+
+    .section-lede strong { color: var(--text); }
+
+    .glass-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(19, 31, 58, 0.84), rgba(11, 18, 36, 0.78));
+      box-shadow: 0 24px 70px rgba(0,0,0,0.23);
+      backdrop-filter: blur(10px);
+    }
+
+    .story-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      margin: 2rem 0;
+      overflow: hidden;
+      background: var(--line);
+    }
+
+    .story-half {
+      padding: clamp(1.4rem, 3vw, 2.2rem);
+      background: var(--panel-strong);
+    }
+
+    .story-half .state-label {
+      color: var(--cyan);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .story-half p { margin-bottom: 0; color: var(--muted); }
+
+    .equation {
+      position: relative;
+      margin: 1.2rem 0;
+      padding: 1.25rem 1.35rem;
+      overflow-x: auto;
+      border: 1px solid rgba(139, 92, 246, 0.22);
+      border-radius: 20px;
+      color: #f5f3ff;
+      background: rgba(139, 92, 246, 0.07);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.06rem, 2.1vw, 1.48rem);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .equation small {
+      display: block;
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      font-size: 0.76rem;
+      white-space: normal;
+    }
+
+    .plain-note {
+      margin: 1.5rem 0 2rem;
+      padding: 1.1rem 1.25rem;
+      border-left: 3px solid var(--cyan);
+      border-radius: 0 17px 17px 0;
+      color: #cfdaed;
+      background: rgba(34, 211, 238, 0.055);
+    }
+
+    .plain-note strong { color: var(--cyan); }
+
+    .media-frame {
+      position: relative;
+      margin: 2.2rem 0;
+      padding: clamp(0.65rem, 1.5vw, 1rem);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: rgba(11, 18, 36, 0.72);
+      box-shadow: var(--shadow);
+    }
+
+    .media-frame::before {
+      content: "";
+      position: absolute;
+      inset: -45% 20% auto;
+      height: 55%;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.16), transparent 70%);
+      pointer-events: none;
+    }
+
+    .media-frame img {
+      position: relative;
+      width: 100%;
+      border-radius: 21px;
+    }
+
+    .media-caption {
+      padding: 0.75rem 0.55rem 0.25rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 2.2rem 0;
+    }
+
+    .concept-card {
+      min-height: 190px;
+      padding: 1.35rem;
+      border: 1px solid var(--line);
+      border-radius: 23px;
+      background: rgba(18, 29, 54, 0.58);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .concept-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(34, 211, 238, 0.38);
+      background: rgba(18, 29, 54, 0.82);
+    }
+
+    .concept-icon {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      aspect-ratio: 1;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 14px;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.06);
+      font-family: Georgia, serif;
+      font-weight: 800;
+    }
+
+    .concept-card p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.91rem;
+    }
+
+    .target-card {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 2rem;
+      align-items: center;
+      margin: 2rem 0;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      border-color: rgba(232, 121, 249, 0.26);
+      background:
+        radial-gradient(circle at 12% 20%, rgba(232, 121, 249, 0.13), transparent 45%),
+        linear-gradient(145deg, rgba(24, 29, 58, 0.9), rgba(12, 18, 37, 0.86));
+    }
+
+    .target-symbol {
+      text-align: center;
+      font-family: Georgia, serif;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      color: #f3e8ff;
+      text-shadow: 0 0 34px rgba(232, 121, 249, 0.35);
+    }
+
+    .target-card p { margin-bottom: 0; color: var(--muted); }
+
+    .circuit-stack {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 2.3rem 0;
+    }
+
+    .circuit-card {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(13, 20, 39, 0.74);
+    }
+
+    .circuit-card img {
+      width: 100%;
+      min-height: 215px;
+      object-fit: contain;
+      border-radius: 16px;
+      background: #0b1020;
+    }
+
+    .circuit-card h3 { margin: 1rem 0 0.2rem; }
+    .circuit-card p { margin-bottom: 0; color: var(--muted); font-size: 0.86rem; }
+
+    .protocol {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.7rem;
+      margin: 2.4rem 0;
+    }
+
+    .protocol-step {
+      position: relative;
+      min-height: 145px;
+      padding: 1.15rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(18, 29, 54, 0.55);
+    }
+
+    .protocol-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -0.72rem;
+      z-index: 2;
+      transform: translateY(-50%);
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .protocol-step span {
+      display: block;
+      margin-bottom: 0.75rem;
+      color: var(--cyan);
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+    }
+
+    .protocol-step strong { display: block; font-size: 0.9rem; }
+    .protocol-step small { color: var(--muted); line-height: 1.45; }
+
+    details {
+      margin: 1.25rem 0;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(18, 29, 54, 0.45);
+    }
+
+    summary {
+      padding: 1.1rem 1.25rem;
+      cursor: pointer;
+      font-weight: 820;
+    }
+
+    details > div {
+      padding: 0 1.25rem 1.2rem;
+      color: var(--muted);
+    }
+
+    details p:last-child { margin-bottom: 0; }
+
+    .amplitude-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin: 1.4rem 0 2rem;
+    }
+
+    .amplitude-token {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      text-align: center;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .amplitude-token strong {
+      display: block;
+      color: var(--cyan);
+      font-family: Georgia, serif;
+      font-size: 1.25rem;
+    }
+
+    .amplitude-token small { color: var(--muted); }
+
+    .success-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .success-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 300px;
+      padding: clamp(1.4rem, 3vw, 2rem);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: rgba(18, 29, 54, 0.63);
+    }
+
+    .success-card::before {
+      content: attr(data-number);
+      position: absolute;
+      top: -0.6rem;
+      right: 0.8rem;
+      color: rgba(255,255,255,0.035);
+      font-family: Georgia, serif;
+      font-size: 8rem;
+      line-height: 1;
+    }
+
+    .success-card .mini-label {
+      color: var(--cyan);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .success-card p { color: var(--muted); }
+
+    .success-card .equation {
+      margin: 1.25rem 0;
+      padding: 1rem;
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+    }
+
+    .final-rule {
+      margin: 2rem 0;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 28px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.12), transparent 58%),
+        rgba(10, 24, 31, 0.68);
+      box-shadow: 0 24px 80px rgba(52, 211, 153, 0.07);
+    }
+
+    .final-rule strong {
+      display: block;
+      margin-bottom: 0.7rem;
+      color: var(--green);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .final-rule .rule-equation {
+      font-family: Georgia, serif;
+      font-size: clamp(1.7rem, 4vw, 3.3rem);
+      letter-spacing: -0.025em;
+    }
+
+    .warning-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.2rem;
+      align-items: start;
+      margin: 1.5rem 0;
+      padding: 1.35rem;
+      border: 1px solid rgba(251, 191, 36, 0.26);
+      border-radius: 22px;
+      background: rgba(251, 191, 36, 0.055);
+    }
+
+    .warning-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      aspect-ratio: 1;
+      border-radius: 14px;
+      color: #111827;
+      background: var(--amber);
+      font-weight: 950;
+    }
+
+    .warning-card p { margin-bottom: 0; color: #d4dbea; }
+
+    .lab-shell {
+      overflow: hidden;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 32px;
+      background: rgba(11, 18, 36, 0.82);
+      box-shadow: var(--shadow), 0 0 100px rgba(139, 92, 246, 0.08);
+    }
+
+    .lab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.2rem 1.35rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.022);
+    }
+
+    .lab-title {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 840;
+    }
+
+    .status-dot {
+      width: 9px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 15px var(--green);
+    }
+
+    .case-tabs {
+      display: inline-flex;
+      gap: 0.35rem;
+      padding: 0.3rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .case-tab {
+      min-height: 42px;
+      padding: 0.55rem 0.9rem;
+      border: 0;
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .case-tab[aria-selected="true"] {
+      color: #07111b;
+      background: var(--cyan);
+      box-shadow: 0 8px 24px rgba(34, 211, 238, 0.2);
+    }
+
+    .lab-body {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1px;
+      background: var(--line);
+    }
+
+    .lab-visual,
+    .lab-results {
+      padding: clamp(1.3rem, 3.5vw, 2.2rem);
+      background: #0d1427;
+    }
+
+    .case-kicker {
+      margin-bottom: 0.35rem;
+      color: var(--cyan);
+      font-size: 0.74rem;
+      font-weight: 850;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    #case-title { margin-bottom: 0.4rem; font-size: clamp(1.45rem, 3vw, 2rem); }
+    #case-summary { color: var(--muted); }
+
+    .branch-map {
+      position: relative;
+      margin: 2rem 0 1.2rem;
+      padding-left: 3.2rem;
+    }
+
+    .branch-map::before {
+      content: "U3";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      display: grid;
+      place-items: center;
+      width: 2.4rem;
+      aspect-ratio: 1;
+      transform: translateY(-50%);
+      border: 1px solid rgba(139, 92, 246, 0.45);
+      border-radius: 12px;
+      color: #ddd6fe;
+      background: rgba(139, 92, 246, 0.15);
+      font-size: 0.75rem;
+      font-weight: 850;
+    }
+
+    .branch-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 72px 1fr 55px;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 54px;
+    }
+
+    .branch-row::before {
+      content: "";
+      position: absolute;
+      left: -0.8rem;
+      width: 0.8rem;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .branch-row span { color: #dbeafe; font-weight: 760; }
+
+    .branch-track {
+      height: 11px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.12);
+    }
+
+    .branch-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.5);
+      transition: width 700ms cubic-bezier(.2,.7,.2,1), opacity 300ms ease;
+    }
+
+    .branch-row:last-child .branch-fill {
+      background: linear-gradient(90deg, var(--violet), var(--magenta));
+      box-shadow: 0 0 18px rgba(232, 121, 249, 0.38);
+    }
+
+    .branch-row output { color: var(--muted); font-size: 0.82rem; font-weight: 800; text-align: right; }
+    .branch-row.is-zero { opacity: 0.42; }
+    .branch-row.is-zero .branch-track { box-shadow: inset 0 0 0 1px rgba(251,113,133,0.2); }
+
+    .amplitude-bars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+    }
+
+    .amp-box {
+      padding: 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.022);
+    }
+
+    .amp-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .amp-head output { color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .amp-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.12);
+    }
+
+    .amp-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--amber);
+      box-shadow: 0 0 15px rgba(251,191,36,0.45);
+      transition: width 650ms ease;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .metric {
+      min-height: 128px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .metric-label {
+      display: block;
+      margin-bottom: 0.65rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 820;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .metric output {
+      display: block;
+      color: var(--text);
+      font-family: Georgia, serif;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      line-height: 1;
+    }
+
+    #metric-challenge { color: var(--green); }
+    #metric-verdict { font-size: clamp(1.18rem, 2vw, 1.62rem); line-height: 1.1; }
+    #metric-verdict.reachable { color: var(--green); }
+    #metric-verdict.unreachable { color: var(--red); }
+
+    .case-explanation {
+      margin: 0.85rem 0 0;
+      padding: 1rem;
+      border-radius: 18px;
+      color: #d5deed;
+      background: rgba(139, 92, 246, 0.08);
+      font-size: 0.9rem;
+    }
+
+    .quiz-card {
+      margin: 2.3rem 0;
+      padding: clamp(1.5rem, 4vw, 2.6rem);
+    }
+
+    .quiz-card h3 { font-size: clamp(1.45rem, 3vw, 2rem); }
+
+    .quiz-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 1.4rem 0 1rem;
+    }
+
+    .quiz-option {
+      min-width: 135px;
+      min-height: 48px;
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--text);
+      background: rgba(255,255,255,0.035);
+      font-weight: 820;
+      cursor: pointer;
+    }
+
+    .quiz-option:hover { border-color: rgba(34,211,238,0.5); }
+    .quiz-option.correct { color: #06150f; border-color: var(--green); background: var(--green); }
+    .quiz-option.incorrect { color: #23070d; border-color: var(--red); background: var(--red); }
+
+    .quiz-feedback {
+      min-height: 3.2rem;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .quiz-feedback strong { color: var(--text); }
+
+    .takeaway-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .takeaway-card {
+      padding: 1.45rem;
+    }
+
+    .takeaway-card ol,
+    .takeaway-card ul {
+      margin: 1rem 0 0;
+      padding-left: 1.2rem;
+      color: var(--muted);
+    }
+
+    .takeaway-card li + li { margin-top: 0.7rem; }
+    .takeaway-card strong { color: var(--text); }
+
+    .closing {
+      padding: clamp(2rem, 5vw, 4rem);
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% -20%, rgba(34, 211, 238, 0.17), transparent 55%),
+        linear-gradient(145deg, rgba(18, 29, 54, 0.83), rgba(11, 18, 36, 0.85));
+    }
+
+    .closing h2 { max-width: 16ch; margin-inline: auto; }
+    .closing p { max-width: 46rem; margin-inline: auto; color: var(--muted); }
+    .closing .actions { justify-content: center; margin-top: 1.5rem; }
+
+    footer {
+      padding: 2rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.8rem 1rem;
+    }
+
+    .footer-links a:hover { color: var(--text); }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 650ms ease, transform 650ms cubic-bezier(.2,.7,.2,1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes spin {
+      from { rotate: 0deg; }
+      to { rotate: 360deg; }
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .target-card,
+      .lab-body { grid-template-columns: 1fr; }
+
+      .hero-copy { padding-top: 1rem; }
+      .quantum-stage { min-height: 470px; }
+      .floating-note.top { right: 1%; }
+      .floating-note.bottom { left: 1%; }
+      .concept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .protocol { grid-template-columns: repeat(3, 1fr); }
+      .protocol-step:not(:last-child)::after { display: none; }
+      .lab-body { gap: 1px; }
+    }
+
+    @media (max-width: 720px) {
+      .topnav a:not(.source-link) { display: none; }
+      .chapter-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .chapter-marker { position: static; display: flex; align-items: center; gap: 1rem; }
+      .chapter-marker p { max-width: none; margin: 0; }
+      .chapter-number { margin: 0; font-size: 2.4rem; }
+      .story-card,
+      .circuit-stack,
+      .success-grid,
+      .takeaway-grid { grid-template-columns: 1fr; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .concept-card { min-height: 0; }
+      .protocol { grid-template-columns: 1fr 1fr; }
+      .amplitude-map { grid-template-columns: 1fr 1fr; }
+      .quantum-stage { min-height: 410px; }
+      .hero-card { border-radius: 25px; transform: none; }
+      .floating-note { max-width: 180px; padding: 0.65rem 0.75rem; font-size: 0.72rem; }
+      .lab-header { align-items: flex-start; flex-direction: column; }
+      .case-tabs { width: 100%; }
+      .case-tab { flex: 1; }
+      .footer-inner { flex-direction: column; }
+      .footer-links { justify-content: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+      .container, .topbar-inner { width: min(calc(100% - 1.2rem), var(--max)); }
+      .scene { padding-block: 4.5rem; }
+      .hero { padding-top: 2.2rem; }
+      h1 { font-size: clamp(3.15rem, 18vw, 5.4rem); }
+      .quantum-stage { min-height: 350px; }
+      .floating-note { display: none; }
+      .hero-card-copy { align-items: flex-start; flex-direction: column; }
+      .protocol,
+      .metric-grid { grid-template-columns: 1fr; }
+      .branch-row { grid-template-columns: 62px 1fr 48px; gap: 0.5rem; }
+      .amplitude-bars { grid-template-columns: 1fr; }
+      .target-symbol { font-size: 2.2rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+      .hero-card { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the lesson</a>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="Quantum Cat Lab, return to top">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Quantum Cat Lab</span>
+      </a>
+      <nav class="topnav" aria-label="Lesson navigation">
+        <a href="#story">Story</a>
+        <a href="#challenge">Challenge</a>
+        <a href="#experiment">Experiment</a>
+        <a class="source-link" href="https://github.com/sunshineluyao/schrodingers-cat" target="_blank" rel="noreferrer">Source ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="scene hero" id="top">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">A 5–8 minute, zero-prerequisite OER</p>
+          <h1>Did we really prepare the <span class="glow-word">quantum cat?</span></h1>
+          <p class="hero-lede">
+            A validator can print <strong>PASS</strong> even when its “successful” measurement branch never occurs.
+            Learn the two numbers that separate a correct equation from a physically reachable quantum state.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#story">Start with the story <span aria-hidden="true">↓</span></a>
+            <a class="button" href="#experiment">Jump to the experiment</a>
+          </div>
+          <div class="hero-meta" aria-label="Lesson attributes">
+            <span>No prior quantum knowledge</span>
+            <span>Two fixed examples</span>
+            <span>No hardware required</span>
+          </div>
+        </div>
+
+        <div class="quantum-stage reveal" aria-label="Quantum cat challenge visual">
+          <div class="floating-note top">The branch must actually occur</div>
+          <div class="hero-card" data-parallax="0.055">
+            <img src="assets/schrodingers-cat-banner-social-preview.png" alt="Dark-neon illustration of the atom, quantum circuit, and Schrödinger cat">
+            <div class="hero-card-copy">
+              <div>
+                <strong>Amplitude equality is only one check</strong>
+                <small>Physical validity also needs non-zero probability.</small>
+              </div>
+              <span class="pass-pill">PASS ≠ REACHABLE</span>
+            </div>
+          </div>
+          <div class="floating-note bottom">Then check the conditional cat state</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="story">
+      <div class="container chapter-grid">
+        <aside class="chapter-marker reveal" aria-label="Chapter 1">
+          <span class="chapter-number">01</span>
+          <p>The story before the code</p>
+        </aside>
+        <div class="chapter-content">
+          <p class="eyebrow reveal">First: what is this challenge about?</p>
+          <h2 class="reveal">A cat, an atom, and two qubits.</h2>
+          <p class="section-lede reveal">
+            Schrödinger's thought experiment places a radioactive atom, a mechanism, and a cat in a closed box.
+            The coding challenge replaces the real objects with <strong>two labeled quantum bits</strong> so we can study their joint state.
+          </p>
+
+          <div class="story-card glass-card reveal">
+            <div class="story-half">
+              <span class="state-label">Atom qubit A</span>
+              <div class="equation">|0⟩<sub>A</sub> = undecayed &nbsp;&nbsp; |1⟩<sub>A</sub> = decayed</div>
+              <p>The first symbol in a two-qubit label describes the atom.</p>
+            </div>
+            <div class="story-half">
+              <span class="state-label">Cat qubit C</span>
+              <div class="equation">|0⟩<sub>C</sub> = alive &nbsp;&nbsp; |1⟩<sub>C</sub> = dead</div>
+              <p>The second symbol describes the simplified “cat” system.</p>
+            </div>
+          </div>
+
+          <div class="equation reveal">
+            |ψ⟩<sub>AC</sub> = (|00⟩<sub>AC</sub> + |11⟩<sub>AC</sub>) / √2
+            <small>Read this as two correlated possibilities: atom 0 with cat 0, and atom 1 with cat 1.</small>
+          </div>
+
+          <div class="plain-note reveal">
+            <strong>Entanglement, in plain language:</strong> the atom and cat can no longer be fully described as two independent pure states. Their relationship belongs to the pair.
+          </div>
+
+          <div class="media-frame reveal">
+            <img src="assets/state_evolution.gif" alt="Animation showing the two-qubit state becoming entangled and then steered by measurement">
+            <p class="media-caption">The original repository's state-evolution animation: prepare → entangle → rotate the atom's measurement basis → post-select.</p>
+          </div>
+
+          <p class="section-lede reveal">
+            The popular claim says the unmeasured cat is already in the pure state |+⟩. The challenge begins by correcting that claim:
+            when the atom and cat are entangled, the cat alone looks like a classical 50/50 mixture, with no usable phase coherence.
+          </p>
+
+          <div class="media-frame reveal">
+            <img src="assets/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison between a mixed cat state at the center and a pure superposition on the surface">
+            <p class="media-caption">Center of the sphere: mixed state. Surface of the sphere: pure superposition. Measuring the atom in a suitable basis can steer the cat from the first description to the second.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="concepts">
+      <div class="container chapter-grid">
+        <aside class="chapter-marker reveal" aria-label="Chapter 2">
+          <span class="chapter-number">02</span>
+          <p>Six ideas, no assumed vocabulary</p>
+        </aside>
+        <div class="chapter-content">
+          <p class="eyebrow reveal">A small concept kit</p>
+          <h2 class="reveal">The words you need—nothing more.</h2>
+          <p class="section-lede reveal">
+            Each term below has one job in this experiment. You do not need a full quantum-computing course before continuing.
+          </p>
+
+          <div class="concept-grid">
+            <article class="concept-card reveal">
+              <span class="concept-icon" aria-hidden="true">|ψ⟩</span>
+              <h3>Qubit</h3>
+              <p>A system with two labeled measurement outcomes, |0⟩ and |1⟩. Before measurement, its state can carry an amplitude for each outcome.</p>
+            </article>
+            <article class="concept-card reveal">
+              <span class="concept-icon" aria-hidden="true">A</span>
+              <h3>Amplitude</h3>
+              <p>A complex number attached to a possibility. Its squared magnitude gives probability; its phase controls how possibilities interfere.</p>
+            </article>
+            <article class="concept-card reveal">
+              <span class="concept-icon" aria-hidden="true">+</span>
+              <h3>Superposition</h3>
+              <p>A coherent combination such as |+⟩ = (|0⟩ + |1⟩)/√2. “Coherent” means the relative phase is still present—not merely an unknown coin flip.</p>
+            </article>
+            <article class="concept-card reveal">
+              <span class="concept-icon" aria-hidden="true">∞</span>
+              <h3>Entanglement</h3>
+              <p>A joint state whose parts cannot each be assigned an independent pure state. The correlations belong to the combined system.</p>
+            </article>
+            <article class="concept-card reveal">
+              <span class="concept-icon" aria-hidden="true">U3</span>
+              <h3>Measurement basis</h3>
+              <p>The “direction” in which we ask a 0/1 question. A U3 gate acts like a three-knob compass that rotates this direction before measurement.</p>
+            </article>
+            <article class="concept-card reveal">
+              <span class="concept-icon" aria-hidden="true">0✓</span>
+              <h3>Post-selection</h3>
+              <p>Repeat the experiment and keep only rounds with a predeclared outcome. Here the challenge calls atom = 0 the successful exit.</p>
+            </article>
+          </div>
+
+          <div class="target-card glass-card reveal">
+            <div class="target-symbol" aria-label="target cat state ket plus">|+⟩<sub>C</sub></div>
+            <div>
+              <p class="eyebrow">The target cat state</p>
+              <h3>|+⟩<sub>C</sub> = (|0⟩<sub>C</sub> + |1⟩<sub>C</sub>) / √2</h3>
+              <p>
+                “Target” means the state chosen in advance by the protocol—not a unique state that nature automatically prefers.
+                Equal magnitude gives equal measurement probabilities; equal phase makes this specifically the |+⟩ state.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="challenge">
+      <div class="container chapter-grid">
+        <aside class="chapter-marker reveal" aria-label="Chapter 3">
+          <span class="chapter-number">03</span>
+          <p>What PennyLane asks us to build</p>
+        </aside>
+        <div class="chapter-content">
+          <p class="eyebrow reveal">The original coding task</p>
+          <h2 class="reveal">Choose the atom's measurement compass.</h2>
+          <p class="section-lede reveal">
+            Given a two-qubit operation <strong>U</strong>, find U3 angles θ, φ, and ω so that—when the atom is measured as 0—the cat is in the uniform target state |+⟩.
+          </p>
+
+          <div class="circuit-stack">
+            <article class="circuit-card reveal">
+              <img src="assets/fig1_original_circuit.svg" alt="Original challenge circuit with Hadamard, CNOT, atom measurement rotation, and cat output">
+              <h3>The motivating circuit</h3>
+              <p>A known Bell-state preparation followed by a rotated atom measurement.</p>
+            </article>
+            <article class="circuit-card reveal">
+              <img src="assets/fig2_general_circuit.svg" alt="General challenge circuit with arbitrary two-qubit unitary U and a U3 gate on the atom">
+              <h3>The generalized task</h3>
+              <p>Replace the known preparation with arbitrary U and solve for the U3 angles.</p>
+            </article>
+          </div>
+
+          <div class="protocol reveal" aria-label="Five steps in the challenge protocol">
+            <div class="protocol-step"><span>1</span><strong>Prepare |00⟩</strong><small>Atom and cat start in label 0.</small></div>
+            <div class="protocol-step"><span>2</span><strong>Apply U</strong><small>Create a joint two-qubit state.</small></div>
+            <div class="protocol-step"><span>3</span><strong>Rotate with U3</strong><small>Choose the atom measurement basis.</small></div>
+            <div class="protocol-step"><span>4</span><strong>Measure atom</strong><small>Observe either label 0 or label 1.</small></div>
+            <div class="protocol-step"><span>5</span><strong>Keep atom = 0</strong><small>Inspect the cat only in this branch.</small></div>
+          </div>
+
+          <details class="reveal">
+            <summary>Why keep atom = 0 rather than atom = 1?</summary>
+            <div>
+              <p>
+                No law of physics makes 0 the only valid choice. It is the challenge's declared success label after the U3 rotation.
+                Another protocol could keep 1, or apply a correction after seeing 1. The important rule is to declare the branch and report how often it occurs.
+              </p>
+            </div>
+          </details>
+
+          <div class="equation reveal">
+            |ψ⟩ = A₀₀|00⟩ + A₀₁|01⟩ + A₁₀|10⟩ + A₁₁|11⟩
+            <small>The first index is the atom; the second is the cat. Each A is a complex amplitude.</small>
+          </div>
+
+          <div class="amplitude-map reveal">
+            <div class="amplitude-token"><strong>A₀₀</strong><small>atom 0 · cat 0</small></div>
+            <div class="amplitude-token"><strong>A₀₁</strong><small>atom 0 · cat 1</small></div>
+            <div class="amplitude-token"><strong>A₁₀</strong><small>atom 1 · cat 0</small></div>
+            <div class="amplitude-token"><strong>A₁₁</strong><small>atom 1 · cat 1</small></div>
+          </div>
+
+          <p class="section-lede reveal">
+            Post-selecting atom = 0 keeps the first two terms: A₀₀|00⟩ + A₀₁|01⟩.
+            The original validator checks whether the two surviving amplitudes are approximately equal. That checks the <strong>shape</strong> of the desired branch—but not whether the branch exists.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="success">
+      <div class="container chapter-grid">
+        <aside class="chapter-marker reveal" aria-label="Chapter 4">
+          <span class="chapter-number">04</span>
+          <p>What “successful preparation” means</p>
+        </aside>
+        <div class="chapter-content">
+          <p class="eyebrow reveal">Two checks, in the right order</p>
+          <h2 class="reveal">First reach the exit. Then inspect the cat.</h2>
+          <p class="section-lede reveal">
+            A physically meaningful claim needs both <strong>success probability</strong> and <strong>conditional state quality</strong>.
+          </p>
+
+          <div class="success-grid">
+            <article class="success-card reveal" data-number="1">
+              <span class="mini-label">Reachability</span>
+              <h3>Can atom = 0 actually occur?</h3>
+              <div class="equation">p₀ = |A₀₀|² + |A₀₁|²</div>
+              <p>
+                Squared amplitude magnitude is probability. If p₀ = 0, no number of repetitions will produce the branch we planned to keep.
+              </p>
+            </article>
+            <article class="success-card reveal" data-number="2">
+              <span class="mini-label">Conditional quality</span>
+              <h3>If it occurs, is the cat |+⟩?</h3>
+              <div class="equation">F = |⟨+|cat₀⟩|²</div>
+              <p>
+                Fidelity F compares the normalized cat state in that branch with the target. F = 1 is a perfect match. When p₀ = 0, cat₀ cannot be normalized, so F is <strong>undefined—not zero</strong>.
+              </p>
+            </article>
+          </div>
+
+          <div class="final-rule reveal">
+            <strong>Complete physical-validity rule</strong>
+            <div class="rule-equation">p₀ &gt; ε &nbsp; and &nbsp; F ≈ 1</div>
+            <p>In ideal mathematics, require p₀ &gt; 0. Numerical code uses a small tolerance such as ε = 10⁻¹².</p>
+          </div>
+
+          <div class="warning-card reveal">
+            <div class="warning-icon" aria-hidden="true">!</div>
+            <p>
+              <strong>The zero-equals-zero loophole:</strong> A₀₀ = A₀₁ = 0 satisfies the equality test, yet p₀ = |0|² + |0|² = 0.
+              It is like confirming that two empty cups contain equal amounts and then claiming the drinks were prepared.
+            </p>
+          </div>
+
+          <details class="reveal">
+            <summary>Want the normalization formula?</summary>
+            <div>
+              <div class="equation">|cat₀⟩ = (A₀₀|0⟩ + A₀₁|1⟩) / √p₀</div>
+              <p>
+                Dividing by √p₀ makes the conditional state have total probability 1. When p₀ = 0, this would divide by zero; there is no physical conditional state to compare with |+⟩.
+              </p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="experiment">
+      <div class="container chapter-grid">
+        <aside class="chapter-marker reveal" aria-label="Chapter 5">
+          <span class="chapter-number">05</span>
+          <p>Compare a valid case and a boundary case</p>
+        </aside>
+        <div class="chapter-content">
+          <p class="eyebrow reveal">Interactive counterexample lab</p>
+          <h2 class="reveal">Both say PASS. Only one prepares the target.</h2>
+          <p class="section-lede reveal">
+            Switch between the two fixed experiments. Watch the target branch—not only the validator badge.
+          </p>
+
+          <div class="lab-shell reveal">
+            <div class="lab-header">
+              <div class="lab-title"><span class="status-dot" aria-hidden="true"></span> Physical-validity console</div>
+              <div class="case-tabs" role="tablist" aria-label="Choose a quantum example">
+                <button class="case-tab" id="tab-bell" type="button" role="tab" aria-selected="true" aria-controls="case-panel" data-case="bell">Bell preparation</button>
+                <button class="case-tab" id="tab-cnot" type="button" role="tab" aria-selected="false" aria-controls="case-panel" data-case="cnot" tabindex="-1">CNOT on |00⟩</button>
+              </div>
+            </div>
+
+            <div class="lab-body" id="case-panel" role="tabpanel" aria-live="polite" aria-labelledby="tab-bell">
+              <div class="lab-visual">
+                <p class="case-kicker" id="case-kicker">Reachable target</p>
+                <h3 id="case-title">Bell preparation (H + CNOT)</h3>
+                <p id="case-summary">The joint state is entangled. The chosen atom-0 branch occurs half the time and leaves the cat exactly in |+⟩.</p>
+
+                <div class="branch-map" aria-label="Atom measurement branch probabilities">
+                  <div class="branch-row" id="branch-zero-row">
+                    <span>atom = 0</span>
+                    <div class="branch-track"><div class="branch-fill" id="branch-zero-fill"></div></div>
+                    <output id="branch-zero-value">50%</output>
+                  </div>
+                  <div class="branch-row" id="branch-one-row">
+                    <span>atom = 1</span>
+                    <div class="branch-track"><div class="branch-fill" id="branch-one-fill"></div></div>
+                    <output id="branch-one-value">50%</output>
+                  </div>
+                </div>
+
+                <div class="amplitude-bars" aria-label="Target-branch amplitudes">
+                  <div class="amp-box">
+                    <div class="amp-head"><span>A₀₀</span><output id="amp-zero-value">0.5</output></div>
+                    <div class="amp-track"><div class="amp-fill" id="amp-zero-fill"></div></div>
+                  </div>
+                  <div class="amp-box">
+                    <div class="amp-head"><span>A₀₁</span><output id="amp-one-value">0.5</output></div>
+                    <div class="amp-track"><div class="amp-fill" id="amp-one-fill"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="lab-results">
+                <div class="metric-grid">
+                  <div class="metric">
+                    <span class="metric-label">Original equality test</span>
+                    <output id="metric-challenge">PASS</output>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Post-selection p₀</span>
+                    <output id="metric-probability">50%</output>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Conditional fidelity F</span>
+                    <output id="metric-fidelity">1.000</output>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Physical verdict</span>
+                    <output class="reachable" id="metric-verdict">Reachable</output>
+                  </div>
+                </div>
+                <p class="case-explanation" id="case-explanation">
+                  Equality is non-zero: A₀₀ = A₀₁ = 0.5. Therefore p₀ = 0.25 + 0.25 = 0.5, and the normalized conditional cat state is |+⟩.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <details class="reveal">
+            <summary>Why CNOT on |00⟩ is such a useful counterexample</summary>
+            <div>
+              <p>
+                CNOT is capable of creating entanglement for some inputs, but capability is not the same as what happens to this input:
+                CNOT|00⟩ = |00⟩. The solver can rotate the atom so the checked atom-0 amplitudes become A₀₀ = A₀₁ = 0.
+                The equality test passes, but the selected branch has probability zero.
+              </p>
+            </div>
+          </details>
+
+          <div class="quiz-card glass-card reveal">
+            <p class="eyebrow">One-question understanding check</p>
+            <h3>If A₀₀ and A₀₁ are equal but p₀ = 0, did we prepare the target cat state?</h3>
+            <div class="quiz-options" role="group" aria-label="Choose an answer">
+              <button class="quiz-option" type="button" data-answer="yes">Yes</button>
+              <button class="quiz-option" type="button" data-answer="no">No</button>
+            </div>
+            <p class="quiz-feedback" id="quiz-feedback" aria-live="polite">Choose an answer.</p>
+          </div>
+
+          <div class="takeaway-grid">
+            <article class="takeaway-card glass-card reveal">
+              <h3>What every result should report</h3>
+              <ol>
+                <li><strong>Validator condition:</strong> what algebraic equality was checked?</li>
+                <li><strong>Success probability p₀:</strong> how often does the kept branch occur?</li>
+                <li><strong>Conditional fidelity F:</strong> how close is the normalized branch to the target?</li>
+              </ol>
+            </article>
+            <article class="takeaway-card glass-card reveal">
+              <h3>Why 100/100 random tests are not a proof</h3>
+              <ul>
+                <li>Haar-random inputs almost surely avoid exact zero-probability boundaries.</li>
+                <li>Identity or CNOT on |00⟩ can expose a failure mode that random sampling misses.</li>
+                <li>Use deterministic edge cases alongside randomized stress tests.</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="closing glass-card reveal">
+            <p class="eyebrow">The whole lesson in one sentence</p>
+            <h2>Equal is necessary. Reachable is essential.</h2>
+            <p>
+              Passing an amplitude-equality test does not by itself prove that a post-selected quantum state can be prepared.
+              Check that the branch occurs, then check the state inside it.
+            </p>
+            <div class="actions">
+              <a class="button primary" href="https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb" target="_blank" rel="noreferrer">Open the original notebook ↗</a>
+              <a class="button" href="https://pennylane.ai/challenges/schrodingers_cat" target="_blank" rel="noreferrer">Read the PennyLane challenge ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        <strong>Did We Really Prepare the Quantum Cat?</strong><br>
+        An independent educational follow-up. MIT licensed.
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/sunshineluyao/schrodingers-cat" target="_blank" rel="noreferrer">GitHub source</a>
+        <a href="https://pennylane.ai/challenges/schrodingers_cat" target="_blank" rel="noreferrer">Official challenge</a>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const progress = document.getElementById('scroll-progress');
+      const parallaxItems = [...document.querySelectorAll('[data-parallax]')];
+
+      const updateScrollEffects = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const ratio = scrollable > 0 ? window.scrollY / scrollable : 0;
+        progress.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`;
+
+        if (!reducedMotion && window.innerWidth > 720) {
+          parallaxItems.forEach((item) => {
+            const speed = Number(item.dataset.parallax || 0);
+            const rect = item.getBoundingClientRect();
+            const offset = (rect.top + rect.height / 2 - window.innerHeight / 2) * speed;
+            item.style.setProperty('--parallax-y', `${offset.toFixed(1)}px`);
+          });
+        }
+      };
+
+      updateScrollEffects();
+      window.addEventListener('scroll', updateScrollEffects, { passive: true });
+      window.addEventListener('resize', updateScrollEffects);
+
+      const revealItems = document.querySelectorAll('.reveal');
+      if (reducedMotion || !('IntersectionObserver' in window)) {
+        revealItems.forEach((item) => item.classList.add('is-visible'));
+      } else {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.13, rootMargin: '0px 0px -6% 0px' });
+        revealItems.forEach((item) => observer.observe(item));
+      }
+
+      const cases = {
+        bell: {
+          kicker: 'Reachable target',
+          title: 'Bell preparation (H + CNOT)',
+          summary: 'The joint state is entangled. The chosen atom-0 branch occurs half the time and leaves the cat exactly in |+⟩.',
+          probability: 50,
+          otherProbability: 50,
+          fidelity: '1.000',
+          verdict: 'Reachable',
+          verdictClass: 'reachable',
+          amplitudeZero: 0.5,
+          amplitudeOne: 0.5,
+          explanation: 'Equality is non-zero: A₀₀ = A₀₁ = 0.5. Therefore p₀ = 0.25 + 0.25 = 0.5, and the normalized conditional cat state is |+⟩.'
+        },
+        cnot: {
+          kicker: 'Zero-probability boundary',
+          title: 'CNOT acting on |00⟩',
+          summary: 'CNOT can entangle some inputs, but it leaves |00⟩ unchanged. The solver makes the checked atom-0 branch vanish.',
+          probability: 0,
+          otherProbability: 100,
+          fidelity: 'N/A',
+          verdict: 'Unreachable',
+          verdictClass: 'unreachable',
+          amplitudeZero: 0,
+          amplitudeOne: 0,
+          explanation: 'The original equality still passes because A₀₀ = A₀₁ = 0. But p₀ = 0, so the kept branch never occurs and no conditional cat state exists to normalize.'
+        }
+      };
+
+      const tabs = [...document.querySelectorAll('.case-tab')];
+      const panel = document.getElementById('case-panel');
+      const elements = {
+        kicker: document.getElementById('case-kicker'),
+        title: document.getElementById('case-title'),
+        summary: document.getElementById('case-summary'),
+        explanation: document.getElementById('case-explanation'),
+        p0: document.getElementById('metric-probability'),
+        fidelity: document.getElementById('metric-fidelity'),
+        verdict: document.getElementById('metric-verdict'),
+        b0Row: document.getElementById('branch-zero-row'),
+        b1Row: document.getElementById('branch-one-row'),
+        b0Fill: document.getElementById('branch-zero-fill'),
+        b1Fill: document.getElementById('branch-one-fill'),
+        b0Value: document.getElementById('branch-zero-value'),
+        b1Value: document.getElementById('branch-one-value'),
+        a0Fill: document.getElementById('amp-zero-fill'),
+        a1Fill: document.getElementById('amp-one-fill'),
+        a0Value: document.getElementById('amp-zero-value'),
+        a1Value: document.getElementById('amp-one-value')
+      };
+
+      const animatePercent = (element, target) => {
+        if (reducedMotion) {
+          element.textContent = `${target}%`;
+          return;
+        }
+        const start = performance.now();
+        const duration = 520;
+        const tick = (now) => {
+          const t = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - t, 3);
+          element.textContent = `${Math.round(target * eased)}%`;
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      };
+
+      const selectCase = (key, focus = false) => {
+        const data = cases[key];
+        const activeTab = tabs.find((tab) => tab.dataset.case === key);
+        tabs.forEach((tab) => {
+          const selected = tab === activeTab;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panel.setAttribute('aria-labelledby', activeTab.id);
+        if (focus) activeTab.focus();
+
+        elements.kicker.textContent = data.kicker;
+        elements.title.textContent = data.title;
+        elements.summary.textContent = data.summary;
+        elements.explanation.textContent = data.explanation;
+        animatePercent(elements.p0, data.probability);
+        elements.fidelity.textContent = data.fidelity;
+        elements.verdict.textContent = data.verdict;
+        elements.verdict.className = data.verdictClass;
+
+        elements.b0Fill.style.width = `${data.probability}%`;
+        elements.b1Fill.style.width = `${data.otherProbability}%`;
+        animatePercent(elements.b0Value, data.probability);
+        animatePercent(elements.b1Value, data.otherProbability);
+        elements.b0Row.classList.toggle('is-zero', data.probability === 0);
+        elements.b1Row.classList.toggle('is-zero', data.otherProbability === 0);
+
+        elements.a0Value.textContent = data.amplitudeZero.toFixed(1);
+        elements.a1Value.textContent = data.amplitudeOne.toFixed(1);
+        elements.a0Fill.style.width = `${data.amplitudeZero * 200}%`;
+        elements.a1Fill.style.width = `${data.amplitudeOne * 200}%`;
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => selectCase(tab.dataset.case));
+        tab.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+          event.preventDefault();
+          const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+          selectCase(tabs[next].dataset.case, true);
+        });
+      });
+
+      requestAnimationFrame(() => selectCase('bell'));
+
+      const quizButtons = [...document.querySelectorAll('.quiz-option')];
+      const feedback = document.getElementById('quiz-feedback');
+      quizButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          quizButtons.forEach((item) => item.classList.remove('correct', 'incorrect'));
+          if (button.dataset.answer === 'no') {
+            button.classList.add('correct');
+            feedback.innerHTML = '<strong>Correct.</strong> With p₀ = 0, the selected branch never occurs; fidelity is undefined and the target was not prepared.';
+          } else {
+            button.classList.add('incorrect');
+            feedback.innerHTML = '<strong>Not quite.</strong> The equality 0 = 0 passes algebraically, but there is no successful experimental round to keep.';
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

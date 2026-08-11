@@ -7,6 +7,7 @@
 **The pop-culture story is wrong. Here is the physics — and a closed-form quantum circuit that actually puts the cat into a superposition.**
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb)
+[![Launch Interactive OER](https://img.shields.io/badge/Launch-Interactive_OER-8B5CF6)](https://huggingface.co/spaces/zlysunshine/did-we-really-prepare-the-quantum-cat)
 [![License: MIT](https://img.shields.io/badge/License-MIT-34D399.svg)](LICENSE)
 [![Made with PennyLane](https://img.shields.io/badge/Made%20with-PennyLane-8B5CF6.svg)](https://pennylane.ai)
 
@@ -18,9 +19,11 @@
 
 - **The myth:** "the cat is alive AND dead at the same time." **False** for the unmeasured cat — entanglement with the atom destroys the cat's quantum coherence. The cat is in a *classical* 50/50 state, like a coin you simply haven't looked at.
 - **The fix (quantum steering):** measure the *atom* in a cleverly rotated basis, and the cat is projected into a **genuine superposition** $|+\rangle = (|\text{alive}\rangle + |\text{dead}\rangle)/\sqrt{2}$.
-- **This repo:** the closed-form $U3(\theta,\phi,\lambda)$ solution for *any* entangling unitary, verified on **100/100 Haar-random unitaries** to machine precision (max error $2.4\times10^{-16}$).
+- **This repo:** the closed-form $U3(\theta,\phi,\lambda)$ solution for the challenge's amplitude-equality condition, verified on **100/100 Haar-random unitaries** to machine precision (max error $2.4\times10^{-16}$). Physical preparation additionally requires a non-zero post-selection probability.
 
-**New to quantum computing?** Start with the [zero-prerequisites guide](docs/quantum-computing-101.md) (English + 中文速览) — coin-flip analogies only, no math required.
+**New to quantum computing?** Start with the [interactive zero-prerequisite OER](https://huggingface.co/spaces/zlysunshine/did-we-really-prepare-the-quantum-cat), then use the [longer concept guide](docs/quantum-computing-101.md) (English + 中文速览).
+
+> The original notebook remains the PennyLane Challenge solution. The interactive OER asks a follow-up question: does passing the amplitude-equality test also guarantee a physically realizable post-selected state? The answer requires checking both the branch probability $p_0$ and the conditional fidelity $F$.
 
 ---
 
@@ -58,7 +61,7 @@ The density matrix says it in numbers: $\rho_C = \mathrm{diag}(1/2, 1/2)$, **off
 
 ## How it works
 
-The original challenge circuit (top) and the general problem (bottom): for **any** entangling unitary $U$, find $U3(\theta,\phi,\lambda)$ such that measuring the atom as $|0\rangle$ guarantees a uniform cat superposition.
+The original challenge circuit (top) and the general problem (bottom): for a two-qubit unitary $U$, find $U3(\theta,\phi,\lambda)$ such that the atom-$|0\rangle$ branch has equal cat amplitudes. If $U|00\rangle$ has Schmidt rank 2 (is genuinely entangled), that equal-amplitude branch is necessarily non-zero. For rank-1 boundary cases, reachability must be checked separately.
 
 <div align="center">
 <img src="assets/figures/fig1_original_circuit.svg" alt="Original circuit: H, CNOT, H, measure" width="800">
@@ -95,7 +98,7 @@ def evolve_atom_cat(unitary, params):
     return qp.state()
 
 def u3_parameters(unitary):
-    """Closed-form U3 angles for ANY 4x4 unitary (derivation below)."""
+    """Closed-form U3 angles for the challenge equality condition."""
     psi_U = unitary @ np.array([1, 0, 0, 0], dtype=complex)
     a, b, c, d = psi_U[0], psi_U[1], psi_U[2], psi_U[3]
     alpha = a - b
@@ -125,7 +128,7 @@ if __name__ == "__main__":
     print("U3 params (theta, phi, lambda):", params)   # expect (pi/2, 0, -pi)
     print("A_00 =", state[0], " A_01 =", state[1])     # must be equal
     assert np.isclose(state[0], state[1], atol=5e-2), "challenge test FAILED"
-    print("PASS: the cat is in a uniform superposition")
+    print("PASS: equal-amplitude challenge condition")
 ```
 
 Expected output:
@@ -133,7 +136,7 @@ Expected output:
 ```text
 U3 params (theta, phi, lambda): [ 1.57079633  0.         -3.14159265]
 A_00 = (0.5+0j)  A_01 = (0.5+0j)
-PASS: the cat is in a uniform superposition
+PASS: equal-amplitude challenge condition
 ```
 
 A **PennyLane-free** version (pure NumPy, includes the 100-random-unitary stress test) is in [`scripts/quantum_sandbox.py`](scripts/quantum_sandbox.py) — ideal for a first run.
@@ -175,32 +178,38 @@ $$\alpha\cos\tfrac{\theta}{2} = \beta\,e^{i\lambda}\sin\tfrac{\theta}{2}.$$
 
 **Intuition:** $\lambda$ aligns the complex phases of both sides; $\theta$ balances their magnitudes.
 
+This solves the challenge's equality condition. A complete physical claim must also verify
+
+$$p_0=|A_{00}|^2+|A_{01}|^2>0,$$
+
+then normalize the atom-$0$ branch and check its fidelity with $|+\rangle$. When $A_{00}=A_{01}=0$, the equality holds but the selected branch never occurs, so the conditional fidelity is undefined.
+
 The original line-by-line code walkthrough lives in the [notebook](Revisiting_Schrodinger's_Cat.ipynb) and the [zero-prerequisites guide](docs/quantum-computing-101.md).
 
 </details>
 
 ---
 
-## Does the solution always exist? Yes — here is the map
+## Does the equality solution exist? Yes — physical reachability is separate
 
 <div align="center">
 <img src="assets/figures/viz_parameter_analysis.png" alt="Parameter analysis: histograms and 3D cylinder of solutions" width="1000">
 </div>
 
-We drew 50 Haar-random $4\times4$ unitaries and solved for $(\theta,\lambda)$ with the closed form above. Because $\lambda$ is an angle, the natural home of the solutions is a **cylinder** ($\theta$ = height, $\lambda$ = wrap-around), shown in 3D on the right. Every point is green: error at machine precision, every single time.
+We drew 50 Haar-random $4\times4$ unitaries and solved for $(\theta,\lambda)$ with the closed form above. Because $\lambda$ is an angle, the natural home of the solutions is a **cylinder** ($\theta$ = height, $\lambda$ = wrap-around), shown in 3D on the right. Every point is green for the amplitude-equality error. Haar-random states are entangled with probability one, so they almost surely avoid the exact zero-probability boundary; deterministic edge cases are still required.
 
 ---
 
 ## Verification results
 
-| Test | Description | Parameters found | Result |
-|---|---|---|---|
-| Test 1 | Bell-state unitary (H + CNOT) | $\theta=\pi/2,\ \phi=0,\ \lambda=-\pi$ | PASS |
-| Test 2 | Random 4×4 unitary | $\theta=0.547,\ \phi=0,\ \lambda=0$ | PASS |
-| Stress | 100 Haar-random unitaries | various | **100/100 PASS** |
-| Edge | Identity, SWAP, CNOT, phase gates | various | ALL PASS |
+| Test | Original equality check | Post-selection probability | Physical conclusion |
+|---|---|---:|---|
+| Bell preparation (H + CNOT) | PASS; $A_{00}=A_{01}=0.5$ | $p_0=0.5$ | Reachable; $F=1$ |
+| Random 4×4 unitary | PASS for the sampled case | $p_0>0$ almost surely | Reachable for the sampled full-rank state |
+| 100 Haar-random unitaries | **100/100 PASS** for amplitude equality | Exact zero is almost surely not sampled | Stress test, not a proof over boundary cases |
+| Identity, SWAP, CNOT, or a phase gate on $|00\rangle$ | Can PASS with $A_{00}=A_{01}=0$ | $p_0=0$ for the degenerate returned branch | Unreachable; $F$ is N/A |
 
-**Maximum numerical error:** $2.4\times10^{-16}$ (machine precision).
+**Maximum amplitude-equality error in the randomized stress test:** $2.4\times10^{-16}$ (machine precision).
 
 ---
 
@@ -217,8 +226,12 @@ We drew 50 Haar-random $4\times4$ unitaries and solved for $(\theta,\lambda)$ wi
 │   └── generate_figures.py              # regenerate every figure & GIF in this repo
 ├── docs/
 │   └── quantum-computing-101.md         # zero-prerequisites guide (EN + 中文速览)
+├── oer/
+│   ├── index.html                       # interactive physical-validity OER
+│   ├── README.md                        # Hugging Face Space configuration
+│   └── assets/                          # self-contained deployment assets
 ├── certificates/                        # PennyLane challenge & WISER 2026 certificates
-├── CITATION.cff                         # citation metadata (powers GitHub's "Cite" button)
+├── Citation.cff                         # citation metadata (powers GitHub's "Cite" button)
 └── requirements.txt
 ```
 
@@ -257,8 +270,8 @@ All certificate files (PDF / PNG / SVG) are collected in [`certificates/`](certi
 
 ## References
 
-1. PennyLane U3 gate documentation — https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html
-2. PennyLane Challenges: Schrödinger's Cat — https://pennylane.ai/challenges/schrodingers_cat
+1. [PennyLane: Revisiting Schrödinger's Cat challenge](https://pennylane.ai/challenges/schrodingers_cat)
+2. [PennyLane U3 gate documentation](https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html)
 3. Nielsen & Chuang, *Quantum Computation and Quantum Information* (Cambridge, 2010), ch. 2 & 4
 4. Schrödinger, E. (1935), "Die gegenwärtige Situation in der Quantenmechanik", *Naturwissenschaften* 23, 807–812
 5. Wiseman & Milburn, *Quantum Measurement and Control* (Cambridge, 2009) — quantum steering & post-selection
@@ -266,7 +279,7 @@ All certificate files (PDF / PNG / SVG) are collected in [`certificates/`](certi
 
 ## Cite this repository
 
-This repository ships a [`CITATION.cff`](CITATION.cff) file — GitHub automatically shows a **"Cite this repository"** button in the right sidebar (APA & BibTeX export). If you use this work, please cite:
+This repository ships a [`Citation.cff`](Citation.cff) file — GitHub automatically shows a **"Cite this repository"** button in the right sidebar (APA & BibTeX export). If you use this work, please cite:
 
 ```bibtex
 @misc{zhang2026schrodingerscat,
@@ -275,12 +288,12 @@ This repository ships a [`CITATION.cff`](CITATION.cff) file — GitHub automatic
             (PennyLane Quantum Challenge)},
   year   = {2026},
   url    = {https://github.com/sunshineluyao/schrodingers-cat},
-  note   = {Closed-form U3 steering solution, verified on 100 Haar-random unitaries}
+  note   = {Closed-form U3 equality solution, randomized verification, and physical-validity OER}
 }
 ```
 
 ---
 
 <div align="center">
-<sub>Written for the PennyLane "Revisiting Schrödinger's Cat" challenge · June 2026 · all figures reproducible via scripts/generate_figures.py</sub>
+<sub>PennyLane challenge solution · interactive physical-validity OER added August 2026 · all figures reproducible via scripts/generate_figures.py</sub>
 </div>

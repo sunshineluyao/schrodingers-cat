@@ -24,7 +24,7 @@ import numpy as np
 
 # ------------------------------------------------------------------ the solution
 def u3_parameters(unitary):
-    """Closed-form U3(theta, phi, lambda) for ANY 4x4 entangling unitary.
+    """Closed-form U3(theta, phi, lambda) for the challenge equality check.
 
     Derivation (README): requiring A_00 == A_01 after post-selection gives
         alpha * cos(theta/2) = beta * exp(i*lambda) * sin(theta/2)
@@ -73,7 +73,7 @@ def haar_unitary(n, rng):
 def partial_trace_atom(state):
     """Reduced density matrix of the cat (trace out the atom)."""
     psi = state.reshape(2, 2)          # rows: atom, cols: cat
-    return psi @ psi.conj().T          # rho_cat[i, j] = sum_atom psi[atom, i] conj(psi[atom, j])
+    return psi.T @ psi.conj()          # rho_cat[i, j] = sum_atom psi[atom, i] conj(psi[atom, j])
 
 
 BELL = np.array(  # CNOT after H on the atom
