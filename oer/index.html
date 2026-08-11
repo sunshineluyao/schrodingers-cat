@@ -572,6 +572,24 @@
       font-size: 0.82rem;
     }
 
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 1rem;
+      margin: 2.2rem 0;
+    }
+
+    .evidence-grid .media-frame {
+      height: 100%;
+      margin: 0;
+    }
+
+    .evidence-grid .media-frame img {
+      height: clamp(270px, 30vw, 380px);
+      object-fit: contain;
+      background: #080d1d;
+    }
+
     .concept-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1215,6 +1233,7 @@
       .chapter-marker p { max-width: none; margin: 0; }
       .chapter-number { margin: 0; font-size: 2.4rem; }
       .story-card,
+      .evidence-grid,
       .circuit-stack,
       .success-grid,
       .takeaway-grid { grid-template-columns: 1fr; }
@@ -1366,6 +1385,21 @@
           <div class="media-frame reveal">
             <img src="assets/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison between a mixed cat state at the center and a pure superposition on the surface">
             <p class="media-caption">Center of the sphere: mixed state. Surface of the sphere: pure superposition. Measuring the atom in a suitable basis can steer the cat from the first description to the second.</p>
+          </div>
+
+          <p class="plain-note reveal">
+            <strong>Two views of the same change:</strong> the Bloch animation shows where the cat state moves geometrically; the density matrix shows which numerical entries change when quantum coherence is restored.
+          </p>
+
+          <div class="evidence-grid">
+            <div class="media-frame reveal">
+              <img src="assets/bloch_steering.gif" alt="Animated Bloch sphere showing the cat state steered from the mixed-state center toward the target pure state on the surface">
+              <p class="media-caption"><strong>Geometry:</strong> the unconditioned cat begins at the Bloch-sphere center. Conditioning on the chosen atom measurement outcome steers it to the surface at |+⟩.</p>
+            </div>
+            <div class="media-frame reveal">
+              <img src="assets/viz_density_matrix_city.png" alt="Before-and-after density matrices showing zero off-diagonal coherence before steering and non-zero coherence after steering">
+              <p class="media-caption"><strong>Numbers:</strong> the diagonal bars encode populations; the off-diagonal bars encode coherence. Steering creates the off-diagonal terms required for a genuine |+⟩ superposition.</p>
+            </div>
           </div>
         </div>
       </div>
