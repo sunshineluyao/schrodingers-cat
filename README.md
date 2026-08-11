@@ -4,7 +4,7 @@
 
 # Revisiting Schrödinger's Cat
 
-**The pop-culture story is wrong. Here is the physics — and a closed-form quantum circuit that actually puts the cat into a superposition.**
+**Did we really prepare a quantum cat—or did an algebraic test merely say `PASS`?**
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb)
 [![Launch Interactive OER](https://img.shields.io/badge/Launch-Interactive_OER-8B5CF6)](https://huggingface.co/spaces/zlysunshine/did-we-really-prepare-the-quantum-cat)
@@ -15,248 +15,367 @@
 
 ---
 
-## TL;DR
+## The answer in one minute
 
-- **The myth:** "the cat is alive AND dead at the same time." **False** for the unmeasured cat — entanglement with the atom destroys the cat's quantum coherence. The cat is in a *classical* 50/50 state, like a coin you simply haven't looked at.
-- **The fix (quantum steering):** measure the *atom* in a cleverly rotated basis, and the cat is projected into a **genuine superposition** $|+\rangle = (|\text{alive}\rangle + |\text{dead}\rangle)/\sqrt{2}$.
-- **This repo:** the closed-form $U3(\theta,\phi,\lambda)$ solution for the challenge's amplitude-equality condition, verified on **100/100 Haar-random unitaries** to machine precision (max error $2.4\times10^{-16}$). Physical preparation additionally requires a non-zero post-selection probability.
+This repository begins with a familiar story and ends with a stricter scientific question.
+
+| Question | Short answer |
+|---|---|
+| Is the unmeasured cat automatically in $|+\rangle=(|\text{alive}\rangle+|\text{dead}\rangle)/\sqrt2$? | **No.** Its reduced state is a classical-looking 50/50 mixture with no local coherence. |
+| Can measuring the atom steer the cat into $|+\rangle$? | **Yes**, on a suitable, non-zero post-selected branch. |
+| Does $A_{00}=A_{01}$ alone prove success? | **No.** The equality also accepts the empty branch $A_{00}=A_{01}=0$. |
+| What makes the claim trustworthy? | A closed-form derivation, randomized implementation tests, and deterministic physical counterexamples—used together. |
 
 **New to quantum computing?** Start with the [interactive zero-prerequisite OER](https://huggingface.co/spaces/zlysunshine/did-we-really-prepare-the-quantum-cat), then use the [longer concept guide](docs/quantum-computing-101.md) (English + 中文速览).
 
-> The original notebook remains the PennyLane Challenge solution. The interactive OER asks a follow-up question: does passing the amplitude-equality test also guarantee a physically realizable post-selected state? The answer requires checking both the branch probability $p_0$ and the conditional fidelity $F$.
+> The original notebook remains the PennyLane Challenge solution. The OER and this README ask the next question: does passing the challenge's amplitude-equality test guarantee a physically realizable conditional state?
 
 ---
 
-## Watch the cat get steered
+## Q1 — Is Schrödinger's cat already “alive and dead at the same time”?
+
+**Not as a local state of the cat.** After the atom and cat become maximally entangled, their joint state can be
+
+$$
+|\Phi^+\rangle_{AC}
+=\frac{|0\rangle_A|0\rangle_C+|1\rangle_A|1\rangle_C}{\sqrt2}.
+$$
+
+The *joint* atom–cat system is in a coherent entangled superposition. But if we ignore the atom and examine only the cat, we trace the atom out:
+
+$$
+\rho_C=\operatorname{Tr}_A\!\left(|\Phi^+\rangle\langle\Phi^+|\right)
+=\frac12|0\rangle\langle0|+\frac12|1\rangle\langle1|
+=\frac{I}{2}.
+$$
+
+The diagonal entries give 50/50 probabilities; the off-diagonal entries—the cat's local coherence—are zero. So the cat alone sits at the **center** of the Bloch sphere, not on its surface at $|+\rangle$.
 
 <div align="center">
-<img src="assets/anim/state_evolution.gif" alt="State evolution animation: four steps from |00> to the steered cat" width="760">
+<img src="assets/figures/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison: mixed state at center versus pure state on equator" width="900">
 </div>
 
-Four steps, one idea: entangle → rotate the measurement basis → post-select on the atom → the cat lands in $|+\rangle$. Note the **negative phase** (magenta bar) in Step 3 — phase information that probability-only plots throw away.
-
----
-
-## The Myth vs The Reality
-
 <div align="center">
-<img src="assets/figures/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison: mixed state at center vs pure state on equator" width="900">
-</div>
-
-**Read the picture like a globe:** every *pure* quantum state is a point on the sphere's surface; the *center* is the maximally mixed state — a classical coin flip. Pop culture claims the cat sits on the equator automatically. In reality it sits at the center... until we steer it out to the surface.
-
-<div align="center">
-<img src="assets/anim/bloch_steering.gif" alt="Rotating Bloch sphere showing steering from center to surface" width="420">
+<img src="assets/anim/bloch_steering.gif" alt="Teaching animation of steering from the Bloch sphere center to its surface" width="420">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="assets/figures/viz_density_matrix_city.png" alt="Density matrix city plot: zero off-diagonal coherence" width="420">
+<img src="assets/figures/viz_density_matrix_city.png" alt="Density-matrix city plot showing zero off-diagonal coherence" width="420">
 </div>
 
-The density matrix says it in numbers: $\rho_C = \mathrm{diag}(1/2, 1/2)$, **off-diagonals exactly zero** — no coherence, no superposition, just classical ignorance.
+The GIF is a teaching interpolation between two state descriptions, not the literal continuous-time trajectory of one cat during measurement.
 
 ---
+
+## Q2 — If the cat is mixed, how can it become a genuine superposition?
+
+By **quantum steering**: choose a measurement basis for the atom, measure it, and keep a specified outcome. Conditioned on that outcome, the cat can land in
+
+$$
+|+\rangle_C=\frac{|0\rangle_C+|1\rangle_C}{\sqrt2}.
+$$
 
 <div align="center">
-<img src="assets/hero/banner.svg" alt="Dark-neon circuit banner" width="100%">
+<img src="assets/anim/state_evolution.gif" alt="Four-step animation from the initial state to a post-selected cat superposition" width="760">
 </div>
 
-## How it works
+The logic has four steps:
 
-The original challenge circuit (top) and the general problem (bottom): for a two-qubit unitary $U$, find $U3(\theta,\phi,\lambda)$ such that the atom-$|0\rangle$ branch has equal cat amplitudes. If $U|00\rangle$ has Schmidt rank 2 (is genuinely entangled), that equal-amplitude branch is necessarily non-zero. For rank-1 boundary cases, reachability must be checked separately.
+1. prepare the atom and cat in $|00\rangle$;
+2. entangle them with a two-qubit unitary $U$;
+3. rotate the atom's measurement basis with $U3(\theta,\phi,\lambda)$;
+4. measure the atom and post-select its $|0\rangle$ outcome.
+
+Post-selection is conditional: it describes the retained subensemble. It neither guarantees that the selected outcome occurs nor enables faster-than-light signalling.
+
+---
+
+## Q3 — What exactly did the PennyLane challenge ask us to solve?
+
+The original circuit is shown first; the generalized circuit is shown second.
 
 <div align="center">
-<img src="assets/figures/fig1_original_circuit.svg" alt="Original circuit: H, CNOT, H, measure" width="800">
-<img src="assets/figures/fig2_general_circuit.svg" alt="General circuit: arbitrary U, U3 to be solved" width="800">
+<img src="assets/figures/fig1_original_circuit.svg" alt="Original challenge circuit with Hadamard, CNOT, Hadamard, and measurement" width="800">
+<img src="assets/figures/fig2_general_circuit.svg" alt="General circuit with arbitrary two-qubit U and a U3 gate to solve" width="800">
 </div>
 
-**Quantum steering, in one diagram:**
+For a fixed input $|00\rangle$, only the first column of $U$ matters:
 
-```mermaid
-flowchart LR
-    A["atom + cat<br/>both |0>"] --> B["entangle<br/>unitary U"]
-    B --> C{"how do you<br/>measure the atom?"}
-    C -->|"computational basis<br/>(do nothing)"| D["cat = I/2<br/>classical 50/50<br/>NO superposition"]
-    C -->|"U3(theta, phi, lambda)<br/>then measure"| E["cat = |+><br/>GENUINE superposition"]
-```
+$$
+U|00\rangle=a|00\rangle+b|01\rangle+c|10\rangle+d|11\rangle.
+$$
 
----
+After applying $U3(\theta,\phi,\lambda)$ to the atom, the two amplitudes in the atom-$|0\rangle$ branch are
 
-## The complete solution (copy-paste runnable)
+$$
+A_{00}=a\cos\frac{\theta}{2}-c\,e^{i\lambda}\sin\frac{\theta}{2},
+$$
 
-Requires `pip install pennylane`. This is the exact challenge submission plus a self-test:
+$$
+A_{01}=b\cos\frac{\theta}{2}-d\,e^{i\lambda}\sin\frac{\theta}{2}.
+$$
 
-```python
-import pennylane as qp
-import pennylane.numpy as np
+The challenge validator asks for
 
-dev = qp.device('default.qubit', wires=['atom', 'cat'])
+$$
+A_{00}=A_{01}.
+$$
 
-@qp.qnode(dev)
-def evolve_atom_cat(unitary, params):
-    """Apply the entangling unitary, then rotate the atom's measurement basis."""
-    qp.QubitUnitary(unitary, wires=['atom', 'cat'])
-    qp.U3(params[0], params[1], params[2], wires='atom')
-    return qp.state()
-
-def u3_parameters(unitary):
-    """Closed-form U3 angles for the challenge equality condition."""
-    psi_U = unitary @ np.array([1, 0, 0, 0], dtype=complex)
-    a, b, c, d = psi_U[0], psi_U[1], psi_U[2], psi_U[3]
-    alpha = a - b
-    beta = c - d
-    phi = 0.0                       # phi never enters the constraint
-    abs_alpha = np.abs(alpha)
-    abs_beta = np.abs(beta)
-    if np.isclose(abs_alpha, 0) and np.isclose(abs_beta, 0):
-        theta, lam = 0.0, 0.0       # any parameters work
-    elif np.isclose(abs_alpha, 0):
-        theta, lam = 0.0, 0.0       # force sin(theta/2) = 0
-    elif np.isclose(abs_beta, 0):
-        theta, lam = np.pi, 0.0     # force cos(theta/2) = 0
-    else:
-        lam = np.angle(alpha) - np.angle(beta)   # align phases
-        theta = 2 * np.arctan(abs_alpha / abs_beta)  # balance magnitudes
-    return np.array([theta, phi, lam])
-
-# ---- self-test: Bell-state unitary (Hadamard + CNOT) ----
-if __name__ == "__main__":
-    H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
-    CNOT = np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]], dtype=complex)
-    U_bell = CNOT @ np.kron(H, np.eye(2))
-
-    params = u3_parameters(U_bell)
-    state = evolve_atom_cat(U_bell, params)
-    print("U3 params (theta, phi, lambda):", params)   # expect (pi/2, 0, -pi)
-    print("A_00 =", state[0], " A_01 =", state[1])     # must be equal
-    assert np.isclose(state[0], state[1], atol=5e-2), "challenge test FAILED"
-    print("PASS: equal-amplitude challenge condition")
-```
-
-Expected output:
-
-```text
-U3 params (theta, phi, lambda): [ 1.57079633  0.         -3.14159265]
-A_00 = (0.5+0j)  A_01 = (0.5+0j)
-PASS: equal-amplitude challenge condition
-```
-
-A **PennyLane-free** version (pure NumPy, includes the 100-random-unitary stress test) is in [`scripts/quantum_sandbox.py`](scripts/quantum_sandbox.py) — ideal for a first run.
+If this branch is non-zero, equal amplitudes mean its normalized cat state is $|+\rangle$ up to a global phase. The phrase **“if this branch is non-zero”** is the crucial physical qualification.
 
 ---
 
-## The mathematical solution (fold in if curious)
+## Q4 — Can the measurement basis be solved analytically?
+
+**Yes—no optimizer is required.** Define
+
+$$
+\alpha=a-b,\qquad \beta=c-d.
+$$
+
+Then the equality condition becomes
+
+$$
+\alpha\cos\frac{\theta}{2}
+=\beta e^{i\lambda}\sin\frac{\theta}{2}.
+$$
+
+For the general case $|\alpha|>0$ and $|\beta|>0$,
+
+$$
+\lambda=\arg(\alpha)-\arg(\beta),
+\qquad
+\theta=2\arctan\frac{|\alpha|}{|\beta|},
+\qquad
+\phi=0.
+$$
+
+- $\lambda$ aligns the two complex phases.
+- $\theta$ balances the two magnitudes.
+- $\phi$ only changes the discarded atom-$|1\rangle$ branch, so it does not enter the equality constraint.
+
+| Case | Condition | One valid equality solution |
+|---|---|---|
+| General | $|\alpha|>0,\ |\beta|>0$ | $\lambda=\arg(\alpha)-\arg(\beta)$, $\theta=2\arctan(|\alpha|/|\beta|)$ |
+| Degenerate $\alpha$ | $|\alpha|=0,\ |\beta|>0$ | $\theta=0$ |
+| Degenerate $\beta$ | $|\beta|=0,\ |\alpha|>0$ | $\theta=\pi$ |
+| Both zero | $|\alpha|=|\beta|=0$ | any $\theta,\lambda$ satisfies equality |
 
 <details>
-<summary><b>Click to expand the full derivation</b></summary>
+<summary><b>Why does the closed form work?</b></summary>
 
-**Step 1 — state after the unitary.** With input $|00\rangle$:
+For non-zero $\alpha$ and $\beta$, the chosen $\lambda$ makes $\beta e^{i\lambda}$ point in the same complex direction as $\alpha$. The chosen $\theta$ gives
 
-$$|\psi_U\rangle = U|00\rangle = a|00\rangle + b|01\rangle + c|10\rangle + d|11\rangle,$$
+$$
+\cos\frac{\theta}{2}=\frac{|\beta|}{\sqrt{|\alpha|^2+|\beta|^2}},
+\qquad
+\sin\frac{\theta}{2}=\frac{|\alpha|}{\sqrt{|\alpha|^2+|\beta|^2}}.
+$$
 
-where $(a,b,c,d)$ is simply the **first column of $U$**.
+Both sides therefore have the same phase and the same magnitude
 
-**Step 2 — apply $U3 \otimes I$.** The $U3(\theta,\phi,\lambda)$ gate is
+$$
+\frac{|\alpha||\beta|}{\sqrt{|\alpha|^2+|\beta|^2}}.
+$$
 
-$$U3 = \begin{pmatrix} \cos\frac{\theta}{2} & -e^{i\lambda}\sin\frac{\theta}{2} \\ e^{i\phi}\sin\frac{\theta}{2} & e^{i(\phi+\lambda)}\cos\frac{\theta}{2} \end{pmatrix}.$$
-
-The amplitudes that keep the atom at $|0\rangle$ become
-
-$$A_{00} = a\cos\tfrac{\theta}{2} - c\,e^{i\lambda}\sin\tfrac{\theta}{2},\qquad
-A_{01} = b\cos\tfrac{\theta}{2} - d\,e^{i\lambda}\sin\tfrac{\theta}{2}.$$
-
-**Step 3 — the constraint.** A uniform cat superposition needs $A_{00} = A_{01}$. With $\alpha = a-b$ and $\beta = c-d$:
-
-$$\alpha\cos\tfrac{\theta}{2} = \beta\,e^{i\lambda}\sin\tfrac{\theta}{2}.$$
-
-**Step 4 — solve.** $\phi$ never appears (it only touches the atom's $|1\rangle$ branch, which we discard), so set $\phi = 0$. Then:
-
-| Case | Condition | Solution |
-|---|---|---|
-| General | $\|\alpha\|>0, \|\beta\|>0$ | $\lambda = \arg(\alpha)-\arg(\beta)$, $\theta = 2\arctan(\|\alpha\|/\|\beta\|)$ |
-| Degenerate $\alpha$ | $\|\alpha\|=0$ | $\theta = 0$ |
-| Degenerate $\beta$ | $\|\beta\|=0$ | $\theta = \pi$ |
-| Both zero | $\|\alpha\|=\|\beta\|=0$ | any $\theta,\lambda$ |
-
-**Intuition:** $\lambda$ aligns the complex phases of both sides; $\theta$ balances their magnitudes.
-
-This solves the challenge's equality condition. A complete physical claim must also verify
-
-$$p_0=|A_{00}|^2+|A_{01}|^2>0,$$
-
-then normalize the atom-$0$ branch and check its fidelity with $|+\rangle$. When $A_{00}=A_{01}=0$, the equality holds but the selected branch never occurs, so the conditional fidelity is undefined.
-
-The original line-by-line code walkthrough lives in the [notebook](Revisiting_Schrodinger's_Cat.ipynb) and the [zero-prerequisites guide](docs/quantum-computing-101.md).
+The degenerate rows force the remaining sine or cosine factor to zero. This proves the amplitude-equality formula for every input column $(a,b,c,d)$.
 
 </details>
 
 ---
 
-## Does the equality solution exist? Yes — physical reachability is separate
+## Q5 — If the amplitudes are equal, have we prepared the cat?
+
+**Not necessarily.** Equality is an algebraic condition; preparation is a physical claim.
+
+First ask whether the selected branch can occur:
+
+$$
+p_0=|A_{00}|^2+|A_{01}|^2.
+$$
+
+Only when $p_0>0$ does the conditional cat state exist:
+
+$$
+|\mathrm{cat}_0\rangle
+=\frac{A_{00}|0\rangle+A_{01}|1\rangle}{\sqrt{p_0}}.
+$$
+
+Then ask whether that state is the target:
+
+$$
+F=|\langle+|\mathrm{cat}_0\rangle|^2.
+$$
+
+So a complete success claim requires:
+
+1. **amplitude equality:** $A_{00}\approx A_{01}$;
+2. **reachability:** $p_0>0$;
+3. **conditional correctness:** $F\approx1$.
+
+If $p_0=0$, normalization divides by zero. No conditional state exists, so fidelity must be reported as **N/A**, not zero.
+
+| Case | Equality validator | $p_0$ | $F$ | Physical conclusion |
+|---|---|---:|---:|---|
+| Bell preparation: $(H\otimes I)$ then CNOT | PASS; $A_{00}=A_{01}=0.5$ | $0.5$ | $1$ | Reachable and correct |
+| CNOT on $|00\rangle$ | PASS; $A_{00}=A_{01}=0$ | $0$ | N/A | Unreachable: the selected branch never occurs |
+
+This is the central loophole: **$0=0$ is true, but it does not prepare a quantum state.**
+
+For a Schmidt-rank-2 state $U|00\rangle$, the cat's reduced state has full support, so a non-zero branch steering it to $|+\rangle$ exists. Rank-1 boundary cases require the separate reachability check above.
+
+---
+
+## Q6 — If we have a derivation, why run numerical simulations?
+
+Because a correct formula can still be implemented incorrectly.
 
 <div align="center">
-<img src="assets/figures/viz_parameter_analysis.png" alt="Parameter analysis: histograms and 3D cylinder of solutions" width="1000">
+<img src="assets/figures/viz_parameter_analysis.png" alt="Distributions of closed-form theta and lambda values with numerical equality error" width="1000">
 </div>
 
-We drew 50 Haar-random $4\times4$ unitaries and solved for $(\theta,\lambda)$ with the closed form above. Because $\lambda$ is an angle, the natural home of the solutions is a **cylinder** ($\theta$ = height, $\lambda$ = wrap-around), shown in 3D on the right. Every point is green for the amplitude-equality error. Haar-random states are entangled with probability one, so they almost surely avoid the exact zero-probability boundary; deterministic edge cases are still required.
+The figure uses **50 Haar-random $4\times4$ unitaries** to visualize the solved angles and their equality errors. The script then uses **100 Haar-random unitaries** as a larger stress test.
+
+The third panel is a 3D scatter in $(\theta,\lambda,\text{error})$. Because $\lambda$ is periodic, the $(\theta,\lambda)$ parameter domain can be interpreted topologically as a cylinder; the plot itself is not a drawn cylinder.
+
+The randomized tests check that:
+
+- the code extracts the correct first column of $U$;
+- phase alignment and magnitude balancing are implemented correctly;
+- the returned angles make $A_{00}$ and $A_{01}$ equal to floating-point precision;
+- the implementation works across many typical complex-valued inputs.
+
+The maximum observed amplitude-equality error is $2.4\times10^{-16}$—machine precision.
+
+But randomized agreement is **not** a proof of the formula, and it does **not** establish physical validity for every boundary case.
 
 ---
 
-## Verification results
+## Q7 — Why test a deterministic counterexample if 100/100 random tests pass?
 
-| Test | Original equality check | Post-selection probability | Physical conclusion |
-|---|---|---:|---|
-| Bell preparation (H + CNOT) | PASS; $A_{00}=A_{01}=0.5$ | $p_0=0.5$ | Reachable; $F=1$ |
-| Random 4×4 unitary | PASS for the sampled case | $p_0>0$ almost surely | Reachable for the sampled full-rank state |
-| 100 Haar-random unitaries | **100/100 PASS** for amplitude equality | Exact zero is almost surely not sampled | Stress test, not a proof over boundary cases |
-| Identity, SWAP, CNOT, or a phase gate on $|00\rangle$ | Can PASS with $A_{00}=A_{01}=0$ | $p_0=0$ for the degenerate returned branch | Unreachable; $F$ is N/A |
+Because exact zero-probability branches form a measure-zero boundary. Haar-random sampling almost surely produces a Schmidt-rank-2 state and almost surely misses that boundary, no matter how visually convincing a 100/100 pass rate looks.
 
-**Maximum amplitude-equality error in the randomized stress test:** $2.4\times10^{-16}$ (machine precision).
+A deliberately chosen case such as CNOT acting on $|00\rangle$ exposes the semantic gap immediately:
+
+$$
+\mathrm{CNOT}|00\rangle=|00\rangle.
+$$
+
+For the returned degenerate equality solution, the retained atom-$|0\rangle$ branch has
+
+$$
+A_{00}=A_{01}=0,
+\qquad p_0=0.
+$$
+
+The original equality assertion passes, yet the claimed conditional state is physically undefined. Identity, SWAP, and suitable phase-gate inputs reveal the same class of boundary failure.
+
+A deterministic counterexample is therefore not competing with the random test. It asks a different question that random sampling is structurally unlikely to ask.
 
 ---
 
-## Repository map
+## Q8 — How can I explore and reproduce the project?
 
-```text
-├── Revisiting_Schrodinger's_Cat.ipynb   # the full notebook (open in Colab!)
-├── assets/
-│   ├── hero/banner.svg                  # header banner
-│   ├── figures/                         # all static figures (SVG + PNG)
-│   └── anim/                            # GIF animations (GitHub-safe)
-├── scripts/
-│   ├── quantum_sandbox.py               # NumPy-only solver + stress test (start here)
-│   └── generate_figures.py              # regenerate every figure & GIF in this repo
-├── docs/
-│   └── quantum-computing-101.md         # zero-prerequisites guide (EN + 中文速览)
-├── oer/
-│   ├── index.html                       # interactive physical-validity OER
-│   ├── README.md                        # Hugging Face Space configuration
-│   └── assets/                          # self-contained deployment assets
-├── certificates/                        # PennyLane challenge & WISER 2026 certificates
-├── Citation.cff                         # citation metadata (powers GitHub's "Cite" button)
-└── requirements.txt
-```
-
-## Reproduce everything
+The fastest route is the [Colab notebook](https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb). For a local run:
 
 ```bash
 git clone https://github.com/sunshineluyao/schrodingers-cat.git
 cd schrodingers-cat
 pip install -r requirements.txt
 
-# 1. run the math (no quantum hardware needed, pure simulation)
+# Run the NumPy-only solver and 100-unitary stress test
 python scripts/quantum_sandbox.py
 
-# 2. regenerate all figures and GIFs
-python scripts/generate_figures.py            # writes into ./assets
+# Regenerate all static figures and GIFs
+python scripts/generate_figures.py
 
-# 3. or explore interactively
+# Explore the original challenge notebook
 jupyter notebook "Revisiting_Schrodinger's_Cat.ipynb"
+```
+
+<details>
+<summary><b>Show the copy-paste PennyLane solution</b></summary>
+
+```python
+import pennylane as qp
+import pennylane.numpy as np
+
+dev = qp.device("default.qubit", wires=["atom", "cat"])
+
+@qp.qnode(dev)
+def evolve_atom_cat(unitary, params):
+    qp.QubitUnitary(unitary, wires=["atom", "cat"])
+    qp.U3(params[0], params[1], params[2], wires="atom")
+    return qp.state()
+
+def u3_parameters(unitary):
+    """Closed-form U3 angles for the challenge equality condition."""
+    a, b, c, d = unitary @ np.array([1, 0, 0, 0], dtype=complex)
+    alpha = a - b
+    beta = c - d
+    abs_alpha = np.abs(alpha)
+    abs_beta = np.abs(beta)
+    phi = 0.0
+
+    if np.isclose(abs_alpha, 0) and np.isclose(abs_beta, 0):
+        theta, lam = 0.0, 0.0
+    elif np.isclose(abs_alpha, 0):
+        theta, lam = 0.0, 0.0
+    elif np.isclose(abs_beta, 0):
+        theta, lam = np.pi, 0.0
+    else:
+        lam = np.angle(alpha) - np.angle(beta)
+        theta = 2 * np.arctan(abs_alpha / abs_beta)
+
+    return np.array([theta, phi, lam])
+
+H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
+CNOT = np.array(
+    [[1, 0, 0, 0],
+     [0, 1, 0, 0],
+     [0, 0, 0, 1],
+     [0, 0, 1, 0]],
+    dtype=complex,
+)
+U_bell = CNOT @ np.kron(H, np.eye(2))
+
+params = u3_parameters(U_bell)
+state = evolve_atom_cat(U_bell, params)
+assert np.isclose(state[0], state[1], atol=5e-2)
+print("PASS: equal-amplitude challenge condition")
+```
+
+This assertion reproduces the original challenge condition. For a physical preparation claim, also compute $p_0$ and conditional fidelity $F$ using the equations above. The [interactive OER](https://huggingface.co/spaces/zlysunshine/did-we-really-prepare-the-quantum-cat) demonstrates both the reachable Bell case and the zero-probability CNOT counterexample.
+
+</details>
+
+---
+
+## Q9 — Where is everything in the repository?
+
+```text
+├── Revisiting_Schrodinger's_Cat.ipynb   # original challenge notebook
+├── assets/
+│   ├── hero/                            # banners
+│   ├── figures/                         # static SVG and PNG figures
+│   └── anim/                            # GitHub-safe GIF animations
+├── scripts/
+│   ├── quantum_sandbox.py               # NumPy solver + 100-unitary stress test
+│   └── generate_figures.py              # reproducible figure/GIF generator
+├── docs/
+│   └── quantum-computing-101.md         # concept guide (EN + 中文速览)
+├── oer/
+│   ├── index.html                       # interactive physical-validity lesson
+│   ├── README.md                        # Hugging Face Space configuration
+│   └── assets/                          # self-contained deployment assets
+├── certificates/                        # PennyLane and WISER records
+├── Citation.cff                         # GitHub citation metadata
+└── requirements.txt
 ```
 
 ---
 
-## Certificates
+## Q10 — What is the project's provenance?
 
-This project was completed as part of the **PennyLane "Revisiting Schrödinger's Cat" challenge** and the **WISER 2026 summer program**.
+This project was completed as part of the **PennyLane “Revisiting Schrödinger's Cat” challenge** and the **WISER 2026 summer program**.
 
 <div align="center">
 <img src="certificates/pennylane-certificacte-wiser-2026.png" alt="PennyLane challenge certificate — WISER 2026" width="440">
@@ -268,18 +387,18 @@ All certificate files (PDF / PNG / SVG) are collected in [`certificates/`](certi
 
 ---
 
-## References
+## Q11 — What should I read or cite?
+
+### References
 
 1. [PennyLane: Revisiting Schrödinger's Cat challenge](https://pennylane.ai/challenges/schrodingers_cat)
 2. [PennyLane U3 gate documentation](https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html)
 3. Nielsen & Chuang, *Quantum Computation and Quantum Information* (Cambridge, 2010), ch. 2 & 4
-4. Schrödinger, E. (1935), "Die gegenwärtige Situation in der Quantenmechanik", *Naturwissenschaften* 23, 807–812
-5. Wiseman & Milburn, *Quantum Measurement and Control* (Cambridge, 2009) — quantum steering & post-selection
-6. Mezzadri, F. (2007), "How to generate random matrices from the classical compact groups", *Notices of the AMS* 54(5), 592–604
+4. Schrödinger, E. (1935), “Die gegenwärtige Situation in der Quantenmechanik,” *Naturwissenschaften* 23, 807–812
+5. Wiseman & Milburn, *Quantum Measurement and Control* (Cambridge, 2009) — quantum steering and post-selection
+6. Mezzadri, F. (2007), “How to generate random matrices from the classical compact groups,” *Notices of the AMS* 54(5), 592–604
 
-## Cite this repository
-
-This repository ships a [`Citation.cff`](Citation.cff) file — GitHub automatically shows a **"Cite this repository"** button in the right sidebar (APA & BibTeX export). If you use this work, please cite:
+This repository ships a [`Citation.cff`](Citation.cff) file, which powers GitHub's **Cite this repository** button. If you use this work, please cite:
 
 ```bibtex
 @misc{zhang2026schrodingerscat,
@@ -288,9 +407,35 @@ This repository ships a [`Citation.cff`](Citation.cff) file — GitHub automatic
             (PennyLane Quantum Challenge)},
   year   = {2026},
   url    = {https://github.com/sunshineluyao/schrodingers-cat},
-  note   = {Closed-form U3 equality solution, randomized verification, and physical-validity OER}
+  note   = {Closed-form U3 equality solution, randomized verification,
+            deterministic physical-validity tests, and an interactive OER}
 }
 ```
+
+---
+
+## Q12 — What do the three forms of evidence establish together?
+
+They answer three different scientific questions.
+
+| Evidence layer | Question it answers | What it establishes | What it cannot establish alone |
+|---|---|---|---|
+| **Mathematical derivation** | Is the equal-amplitude formula correct for the stated algebraic problem? | The closed form satisfies $A_{00}=A_{01}$, including degenerate cases. | Whether the code implements the formula correctly; whether the selected branch has non-zero probability. |
+| **Randomized numerical simulation** | Did we implement the formula correctly on diverse, typical inputs? | 100/100 Haar-random tests reach machine-precision amplitude equality. | A universal proof; reliable coverage of measure-zero boundaries; physical meaning of a `PASS`. |
+| **Deterministic counterexample** | Does the validator's `PASS` always mean a realizable quantum state? | No: $A_{00}=A_{01}=0$ passes equality while $p_0=0$ and $F$ is undefined. | The general closed-form solution or broad implementation reliability. |
+
+The complete verification record is therefore:
+
+| Test | Equality result | Reachability result | Correct interpretation |
+|---|---|---|---|
+| Bell preparation | $A_{00}=A_{01}=0.5$ | $p_0=0.5$ | Reachable; $F=1$ |
+| One sampled random unitary | PASS | $p_0>0$ almost surely | Reachable for that sampled full-rank state |
+| 100 Haar-random unitaries | **100/100 PASS** | Exact zero is almost surely not sampled | Implementation stress test, not a boundary proof |
+| Identity, SWAP, CNOT, or phase gate on $|00\rangle$ | Can PASS with $A_{00}=A_{01}=0$ | $p_0=0$ | Unreachable; $F$ is N/A |
+
+> **Final lesson:** the mathematical derivation proves the equal-amplitude formula; randomized simulation checks its implementation; deterministic counterexamples test its physical meaning. **All three are indispensable.**
+
+This is the broader trustworthy-computing principle behind the project: a syntactically satisfied assertion is not yet an operationally reachable outcome, and an operational outcome is not yet the intended physical state.
 
 ---
 
