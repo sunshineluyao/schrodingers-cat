@@ -307,7 +307,10 @@
       position: relative;
       min-height: 540px;
       display: grid;
-      place-items: center;
+      grid-template-rows: auto auto auto;
+      align-content: center;
+      justify-items: center;
+      gap: clamp(1rem, 2.4vw, 1.4rem);
       perspective: 1000px;
     }
 
@@ -384,12 +387,12 @@
     }
 
     .floating-note {
-      position: absolute;
+      position: relative;
       z-index: 4;
       display: flex;
       align-items: center;
       gap: 0.65rem;
-      max-width: 210px;
+      width: min(100%, 210px);
       padding: 0.8rem 0.95rem;
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -411,8 +414,20 @@
       box-shadow: 0 0 18px var(--cyan);
     }
 
-    .floating-note.top { top: 10%; right: -2%; }
-    .floating-note.bottom { bottom: 12%; left: -5%; }
+    .floating-note.top {
+      top: auto;
+      right: auto;
+      justify-self: end;
+      margin-right: clamp(0rem, 2vw, 1rem);
+    }
+
+    .floating-note.bottom {
+      bottom: auto;
+      left: auto;
+      justify-self: start;
+      margin-left: clamp(0rem, 2vw, 1rem);
+    }
+
     .floating-note.bottom::before { background: var(--magenta); box-shadow: 0 0 18px var(--magenta); }
 
     .chapter-grid {
@@ -1837,9 +1852,9 @@
       .result-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .hero-copy { padding-top: 1rem; }
-      .quantum-stage { min-height: 470px; }
-      .floating-note.top { right: 1%; }
-      .floating-note.bottom { left: 1%; }
+      .quantum-stage { min-height: 520px; }
+      .floating-note.top { margin-right: 1rem; }
+      .floating-note.bottom { margin-left: 1rem; }
       .concept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .protocol { grid-template-columns: repeat(3, 1fr); }
       .protocol-step:not(:last-child)::after { display: none; }
@@ -1862,9 +1877,9 @@
       .concept-card { min-height: 0; }
       .protocol { grid-template-columns: 1fr 1fr; }
       .amplitude-map { grid-template-columns: 1fr 1fr; }
-      .quantum-stage { min-height: 410px; }
+      .quantum-stage { min-height: 0; }
       .hero-card { border-radius: 25px; transform: none; }
-      .floating-note { max-width: 180px; padding: 0.65rem 0.75rem; font-size: 0.72rem; }
+      .floating-note { width: min(100%, 240px); padding: 0.65rem 0.75rem; font-size: 0.72rem; }
       .lab-header { align-items: flex-start; flex-direction: column; }
       .case-tabs { width: 100%; }
       .case-tab { flex: 1; }
