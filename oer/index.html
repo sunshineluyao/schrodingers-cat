@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A zero-prerequisite interactive OER about post-selection, conditional fidelity, and physical validity in PennyLane's Schrödinger's Cat challenge.">
+  <meta name="description" content="A 12-question interactive OER about steering, post-selection, analytical solutions, numerical validation, and physical validity in PennyLane's Schrödinger's Cat challenge.">
   <meta name="theme-color" content="#080c19">
   <title>Did We Really Prepare the Quantum Cat?</title>
   <style>
@@ -289,13 +289,15 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.7rem 1.25rem;
-      margin-top: 1.45rem;
+      margin: 1.45rem 0 0;
+      padding: 0;
+      list-style: none;
       color: var(--muted);
       font-size: 0.86rem;
       font-weight: 700;
     }
 
-    .hero-meta span::before {
+    .hero-meta li::before {
       content: "•";
       margin-right: 0.55rem;
       color: var(--violet);
@@ -306,6 +308,8 @@
       min-height: 540px;
       display: grid;
       place-items: center;
+      min-width: 0;
+      overflow: clip;
       perspective: 1000px;
     }
 
@@ -337,12 +341,13 @@
       position: relative;
       z-index: 2;
       width: min(100%, 550px);
+      min-width: 0;
       overflow: hidden;
       border: 1px solid rgba(148, 163, 184, 0.22);
       border-radius: 34px;
       background: rgba(13, 20, 39, 0.78);
       box-shadow: var(--shadow), 0 0 80px rgba(139, 92, 246, 0.15);
-      transform: translateY(var(--parallax-y, 0)) rotateX(2deg) rotateY(-3deg);
+      transform: translateY(var(--parallax-y, 0));
       backdrop-filter: blur(14px);
     }
 
@@ -354,12 +359,14 @@
     }
 
     .hero-card-copy {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      justify-content: space-between;
       gap: 1rem;
       padding: 1.15rem 1.3rem 1.25rem;
     }
+
+    .hero-card-summary { min-width: 0; }
 
     .hero-card-copy strong {
       display: block;
@@ -367,10 +374,18 @@
       letter-spacing: -0.02em;
     }
 
-    .hero-card-copy small { color: var(--muted); }
+    .hero-card-copy small {
+      display: block;
+      margin-top: 0.12rem;
+      color: var(--muted);
+    }
 
     .pass-pill {
-      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      justify-self: end;
+      max-width: 100%;
       padding: 0.46rem 0.72rem;
       border: 1px solid rgba(251, 191, 36, 0.35);
       border-radius: 999px;
@@ -379,39 +394,50 @@
       font-size: 0.78rem;
       font-weight: 850;
       letter-spacing: 0.04em;
+      line-height: 1.25;
+      text-align: center;
+      white-space: nowrap;
     }
 
-    .floating-note {
-      position: absolute;
-      z-index: 4;
-      display: flex;
+    .hero-validation-steps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.9rem;
+    }
+
+    .validation-step {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
       align-items: center;
-      gap: 0.65rem;
-      max-width: 210px;
-      padding: 0.8rem 0.95rem;
+      gap: 0.5rem;
+      min-width: 0;
+      padding: 0.58rem 0.65rem;
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 13px;
       color: #dce8fa;
-      background: rgba(8, 12, 25, 0.88);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.32);
-      font-size: 0.79rem;
-      font-weight: 750;
-      backdrop-filter: blur(10px);
+      background: rgba(8, 12, 25, 0.66);
+      font-size: 0.72rem;
+      font-weight: 720;
+      line-height: 1.35;
     }
 
-    .floating-note::before {
-      content: "";
-      flex: 0 0 9px;
-      width: 9px;
+    .validation-step b {
+      display: grid;
+      place-items: center;
+      width: 20px;
       aspect-ratio: 1;
       border-radius: 50%;
+      color: #06121a;
       background: var(--cyan);
-      box-shadow: 0 0 18px var(--cyan);
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
+      font-size: 0.66rem;
     }
 
-    .floating-note.top { top: 10%; right: -2%; }
-    .floating-note.bottom { bottom: 12%; left: -5%; }
-    .floating-note.bottom::before { background: var(--magenta); box-shadow: 0 0 18px var(--magenta); }
+    .validation-step:last-child b {
+      background: var(--magenta);
+      box-shadow: 0 0 16px rgba(232, 121, 249, 0.5);
+    }
 
     .chapter-grid {
       display: grid;
@@ -685,6 +711,8 @@
       grid-template-columns: repeat(5, 1fr);
       gap: 0.7rem;
       margin: 2.4rem 0;
+      padding: 0;
+      list-style: none;
     }
 
     .protocol-step {
@@ -1139,6 +1167,613 @@
 
     .quiz-feedback strong { color: var(--text); }
 
+    .top-progress {
+      padding: 0.3rem 0.65rem;
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 999px;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.07);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .journey { padding-top: clamp(4.5rem, 8vw, 7rem); }
+
+    .journey-intro {
+      max-width: 820px;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .journey-intro .eyebrow { justify-content: center; }
+    .journey-intro h2 { margin-inline: auto; }
+    .journey-intro .section-lede { margin-inline: auto; }
+
+    .journey-layout {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      align-items: start;
+      gap: clamp(1.4rem, 3vw, 2.4rem);
+    }
+
+    .question-rail {
+      position: sticky;
+      top: 88px;
+      max-height: calc(100svh - 106px);
+      padding: 1rem;
+      overflow: auto;
+      border-radius: 22px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(34, 211, 238, 0.35) transparent;
+    }
+
+    .rail-summary {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .rail-summary strong { color: var(--text); font-size: 0.82rem; }
+
+    .rail-meter {
+      height: 5px;
+      margin: 0.8rem 0 1rem;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.14);
+    }
+
+    .rail-meter span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--magenta));
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.55);
+      transition: width 280ms ease;
+    }
+
+    .question-nav { display: grid; gap: 0.25rem; }
+
+    .question-nav a {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 42px;
+      padding: 0.45rem 0.55rem;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      transition: 150ms ease;
+    }
+
+    .question-nav a b {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 9px;
+      color: #d7e4f7;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .question-nav a:hover,
+    .question-nav a.is-active {
+      color: var(--text);
+      border-color: rgba(34, 211, 238, 0.24);
+      background: rgba(34, 211, 238, 0.055);
+    }
+
+    .question-nav a.is-visited b {
+      color: #07150f;
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .question-nav a.is-visited b::after { content: "✓"; font-size: 0.72rem; }
+    .question-nav a.is-visited b { font-size: 0; }
+
+    .text-button {
+      width: 100%;
+      margin-top: 0.85rem;
+      padding: 0.55rem;
+      border: 0;
+      color: #8ea1bd;
+      background: transparent;
+      font-size: 0.72rem;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    .question-flow { min-width: 0; }
+
+    .question-card {
+      position: relative;
+      margin-bottom: 2rem;
+      padding: clamp(1.45rem, 4vw, 3.2rem);
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: clamp(24px, 4vw, 34px);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.08), transparent 22rem),
+        linear-gradient(150deg, rgba(18, 29, 54, 0.76), rgba(9, 15, 31, 0.86));
+      box-shadow: 0 24px 70px rgba(0,0,0,0.2);
+      scroll-margin-top: 92px;
+    }
+
+    .question-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      opacity: 0.65;
+      background: linear-gradient(var(--cyan), var(--violet), transparent 88%);
+    }
+
+    .question-card[data-complete="true"]::before { background: linear-gradient(var(--green), var(--cyan)); }
+
+    .question-header {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      align-items: start;
+      gap: 1.25rem;
+      margin-bottom: 1.35rem;
+    }
+
+    .question-index {
+      display: grid;
+      place-items: center;
+      width: 72px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(34, 211, 238, 0.24);
+      border-radius: 22px;
+      color: var(--cyan);
+      background: rgba(34, 211, 238, 0.055);
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      box-shadow: inset 0 0 30px rgba(34, 211, 238, 0.06);
+    }
+
+    .question-theme {
+      margin: 0 0 0.35rem;
+      color: var(--magenta);
+      font-size: 0.74rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .question-header h2 {
+      max-width: 25ch;
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.8rem);
+    }
+
+    .answer-lede {
+      margin-bottom: 1.8rem;
+      color: #c7d4e8;
+      font-size: clamp(1.02rem, 2vw, 1.16rem);
+    }
+
+    .answer-lede strong { color: var(--text); }
+
+    .question-bridge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.15rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .question-bridge a {
+      flex: 0 0 auto;
+      color: var(--cyan);
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .interactive-shell {
+      margin: 1.7rem 0;
+      overflow: hidden;
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      border-radius: 22px;
+      background: rgba(6, 11, 24, 0.64);
+      box-shadow: inset 0 1px rgba(255,255,255,0.025);
+    }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 0.65rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.018);
+    }
+
+    .segmented button,
+    .preset-row button,
+    .timeline-buttons button,
+    .repo-tree button {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: 150ms ease;
+    }
+
+    .segmented button {
+      min-height: 40px;
+      padding: 0.5rem 0.8rem;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 820;
+    }
+
+    .segmented button:hover,
+    .segmented button[aria-selected="true"],
+    .preset-row button:hover,
+    .preset-row button.is-selected,
+    .timeline-buttons button:hover,
+    .timeline-buttons button[aria-selected="true"],
+    .repo-tree button:hover,
+    .repo-tree button.is-selected {
+      color: var(--text);
+      border-color: rgba(34, 211, 238, 0.48);
+      background: rgba(34, 211, 238, 0.09);
+    }
+
+    .state-stage {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      align-items: center;
+      gap: clamp(1.3rem, 4vw, 2.4rem);
+      padding: clamp(1.25rem, 4vw, 2.25rem);
+    }
+
+    .bloch-disc {
+      position: relative;
+      width: min(100%, 200px);
+      aspect-ratio: 1;
+      margin: auto;
+      border: 1px solid rgba(34, 211, 238, 0.38);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(34,211,238,0.08), transparent 58%),
+        linear-gradient(90deg, transparent 49.7%, rgba(148,163,184,0.18) 50%, transparent 50.3%),
+        linear-gradient(transparent 49.7%, rgba(148,163,184,0.18) 50%, transparent 50.3%);
+      box-shadow: inset 0 0 38px rgba(34,211,238,0.06), 0 0 28px rgba(34,211,238,0.06);
+    }
+
+    .bloch-disc::after {
+      content: "";
+      position: absolute;
+      inset: 47% -4%;
+      border: 1px solid rgba(139, 92, 246, 0.32);
+      border-radius: 50%;
+    }
+
+    .state-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 18px;
+      aspect-ratio: 1;
+      border: 3px solid #dffcff;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 22px var(--cyan);
+      transform: translate(-50%, -50%);
+      transition: left 420ms cubic-bezier(.2,.8,.2,1), top 420ms cubic-bezier(.2,.8,.2,1), background 200ms ease;
+    }
+
+    .state-dot.is-plus { left: 92%; top: 50%; background: var(--magenta); box-shadow: 0 0 22px var(--magenta); }
+
+    .matrix {
+      display: inline-block;
+      margin: 0.7rem 0;
+      padding: 0.7rem 1rem;
+      border-left: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
+      color: #dff8ff;
+      background: rgba(34,211,238,0.04);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    .compact-media { margin-top: 1.2rem; }
+    .compact-media .media-frame { margin: 0; }
+    .compact-media img { aspect-ratio: 16/9; object-fit: contain; background: #fff; }
+
+    .stepper-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stepper-buttons button {
+      min-height: 70px;
+      padding: 0.7rem;
+      border: 0;
+      border-right: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(255,255,255,0.02);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .stepper-buttons button:last-child { border-right: 0; }
+    .stepper-buttons button span { display: block; color: var(--cyan); font-size: 0.72rem; }
+    .stepper-buttons button[aria-selected="true"] { color: var(--text); background: rgba(139,92,246,0.12); box-shadow: inset 0 -2px var(--magenta); }
+
+    .stepper-stage {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) 1fr;
+      align-items: center;
+      gap: 1.4rem;
+      padding: 1.2rem;
+    }
+
+    .stepper-stage img { border-radius: 16px; background: #fff; }
+    .narrow-media { max-width: 620px; margin-inline: auto; }
+
+    .circuit-explorer { padding-bottom: 1.4rem; }
+    .circuit-explorer > img { width: calc(100% - 2rem); max-height: 330px; margin: 1rem auto; padding: 0.8rem; object-fit: contain; border-radius: 16px; background: #fff; }
+    .circuit-explorer > div:last-child { padding: 0 1.2rem; }
+
+    .lab-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.2rem 1.2rem 0.7rem;
+    }
+
+    .lab-heading h3 { margin-bottom: 0; }
+    .lab-heading .mini-label { margin-bottom: 0.25rem; }
+
+    .live-pill {
+      flex: 0 0 auto;
+      padding: 0.35rem 0.6rem;
+      border: 1px solid rgba(52,211,153,0.3);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(52,211,153,0.07);
+      font-size: 0.68rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem 1rem;
+    }
+
+    .preset-row button {
+      min-height: 38px;
+      padding: 0.45rem 0.7rem;
+      border-radius: 11px;
+      font-size: 0.74rem;
+      font-weight: 780;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      padding: 1rem 1.2rem 1.25rem;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.018);
+    }
+
+    .control-grid .range-control {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.35rem 0.7rem;
+      color: #d5e2f3;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .control-grid label { cursor: pointer; }
+    .control-grid output { color: var(--cyan); font-family: ui-monospace, monospace; font-weight: 700; }
+    .control-grid .range-control input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--violet); cursor: pointer; }
+
+    .result-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+    }
+
+    .result-strip > div { min-height: 104px; padding: 1rem; background: rgba(8,13,27,0.94); }
+    .result-strip span { display: block; margin-bottom: 0.55rem; color: var(--muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+    .result-strip strong { display: block; color: var(--text); font-family: Georgia, serif; font-size: clamp(1.05rem, 2vw, 1.42rem); line-height: 1.15; overflow-wrap: anywhere; }
+    .result-strip small { display: block; margin-top: 0.28rem; color: var(--muted); font-size: 0.68rem; }
+    .result-strip .good { color: var(--green); }
+    .result-strip .bad { color: var(--red); }
+    .result-strip .warn { color: var(--amber); }
+
+    .three-column-explain,
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin: 1.2rem 0;
+    }
+
+    .three-column-explain > div,
+    .compare-grid > article {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .three-column-explain p,
+    .compare-grid p { margin-bottom: 0; color: var(--muted); font-size: 0.82rem; }
+    .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .verdict-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .amplitude-visual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      padding: 1rem 1.2rem;
+    }
+
+    .amplitude-visual > div { display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 0.6rem; color: var(--muted); font-size: 0.75rem; }
+    .amplitude-visual i { display: block; width: 66.67%; height: 11px; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--violet)); box-shadow: 0 0 12px rgba(34,211,238,0.2); transition: width 180ms ease, filter 180ms ease; }
+
+    .lab-explanation { margin: 0; padding: 1rem 1.2rem; border-top: 1px solid var(--line); color: #c4d1e3; font-size: 0.84rem; }
+
+    .stress-controls {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 1.2rem 1rem;
+    }
+
+    .stress-controls label { display: grid; gap: 0.35rem; color: var(--muted); font-size: 0.72rem; font-weight: 800; }
+    .stress-controls input,
+    .match-grid select,
+    .reference-tools select {
+      min-height: 42px;
+      border: 1px solid rgba(148,163,184,0.22);
+      border-radius: 11px;
+      color: var(--text);
+      background: #0c1528;
+      padding: 0.55rem 0.7rem;
+    }
+
+    #stress-canvas {
+      display: block;
+      width: calc(100% - 2.4rem);
+      height: auto;
+      margin: 0 1.2rem 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #080d1d;
+    }
+
+    .boundary-buttons { padding-top: 0; }
+    .boundary-panel { border-top: 1px solid var(--line); }
+
+    .gate-orbit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.1rem;
+      min-height: 110px;
+      padding: 1rem;
+      color: #d8e8fa;
+      font-family: Georgia, serif;
+      text-align: center;
+    }
+
+    .gate-orbit span,
+    .gate-orbit strong { padding: 0.6rem 0.85rem; border: 1px solid rgba(34,211,238,0.18); border-radius: 12px; background: rgba(34,211,238,0.04); }
+    .boundary-panel > p { margin: 0; padding: 1rem 1.2rem; color: var(--muted); }
+
+    .repro-panel { padding: 1.2rem; }
+    pre { max-width: 100%; overflow: auto; }
+    .repro-panel pre,
+    .citation-lab pre {
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid rgba(148,163,184,0.14);
+      border-radius: 14px;
+      color: #c9f4ff;
+      background: #070c18;
+      font: 0.77rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+
+    .compact-button { min-height: 40px; padding: 0.55rem 0.8rem; font-size: 0.75rem; }
+    .copy-row > span { color: var(--green); font-size: 0.75rem; }
+
+    .repo-explorer {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.8fr) 1.2fr;
+    }
+
+    .repo-tree { display: grid; align-content: start; gap: 0.4rem; margin: 0; padding: 1rem; border-right: 1px solid var(--line); list-style: none; }
+    .repo-tree li { margin: 0; }
+    .repo-tree button { width: 100%; min-height: 44px; padding: 0.55rem 0.7rem; border-radius: 11px; text-align: left; font-size: 0.75rem; }
+    .repo-detail { padding: 1.3rem; }
+    .repo-detail a,
+    .provenance-panel a { color: var(--cyan); font-weight: 800; }
+
+    .timeline-buttons { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); }
+    .timeline-buttons button { min-height: 75px; padding: 0.65rem; border: 0; border-right: 1px solid var(--line); font-size: 0.73rem; font-weight: 800; }
+    .timeline-buttons button:last-child { border-right: 0; }
+    .timeline-buttons span { display: block; color: var(--cyan); font-size: 0.65rem; }
+    .provenance-panel { padding: 1.3rem; }
+
+    .reference-tools { margin: 1rem 0 1.5rem; }
+    .reference-filter-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--muted); font-size: 0.8rem; font-weight: 800; }
+    .reference-list { margin: 1rem 0 0; padding: 0; list-style: none; counter-reset: references; }
+    .reference-list li { counter-increment: references; padding: 0.8rem 0.8rem 0.8rem 3.1rem; border-bottom: 1px solid var(--line); color: #c6d3e5; font-size: 0.86rem; }
+    .reference-list li::before { content: counter(references, decimal-leading-zero); float: left; margin-left: -2.3rem; color: var(--violet); font-family: ui-monospace, monospace; font-weight: 850; }
+    .reference-list li[hidden] { display: none; }
+    .reference-list a { color: var(--cyan); }
+    .citation-lab { padding: 0 1.2rem 1.2rem; }
+    .citation-lab .segmented { margin-inline: -1.2rem; }
+
+    .evidence-triad {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin: 1.4rem 0;
+    }
+
+    .evidence-triad article {
+      min-height: 270px;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(150deg, rgba(255,255,255,0.035), rgba(139,92,246,0.035));
+    }
+
+    .evidence-number { color: var(--cyan); font: 800 0.75rem ui-monospace, monospace; }
+    .evidence-triad h3 { margin-top: 1rem; }
+    .evidence-triad p { color: #c7d4e7; font-size: 0.86rem; }
+    .evidence-triad small { display: block; padding-top: 0.8rem; border-top: 1px solid var(--line); color: var(--muted); }
+
+    .match-grid { display: grid; gap: 0.7rem; padding: 0.4rem 1.2rem 1.2rem; }
+    .match-grid label { display: grid; grid-template-columns: 1fr minmax(190px, 0.72fr); align-items: center; gap: 1rem; padding: 0.75rem; border: 1px solid var(--line); border-radius: 14px; color: #d9e5f5; font-size: 0.82rem; font-weight: 750; }
+    .synthesis-lab > .copy-row { padding: 0 1.2rem 1.2rem; }
+    .completion-line { color: var(--cyan) !important; font-weight: 850; }
+
     .takeaway-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1216,10 +1851,17 @@
       .target-card,
       .lab-body { grid-template-columns: 1fr; }
 
+      .journey-layout { grid-template-columns: 1fr; }
+      .question-rail { position: static; max-height: none; }
+      .question-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .question-nav a { grid-template-columns: 32px 1fr; }
+      .state-stage,
+      .stepper-stage { grid-template-columns: 1fr; }
+      .stepper-stage img { max-height: 360px; margin-inline: auto; }
+      .result-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
       .hero-copy { padding-top: 1rem; }
-      .quantum-stage { min-height: 470px; }
-      .floating-note.top { right: 1%; }
-      .floating-note.bottom { left: 1%; }
+      .quantum-stage { min-height: 520px; }
       .concept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .protocol { grid-template-columns: repeat(3, 1fr); }
       .protocol-step:not(:last-child)::after { display: none; }
@@ -1228,6 +1870,7 @@
 
     @media (max-width: 720px) {
       .topnav a:not(.source-link) { display: none; }
+      .top-progress { display: none; }
       .chapter-grid { grid-template-columns: 1fr; gap: 1rem; }
       .chapter-marker { position: static; display: flex; align-items: center; gap: 1rem; }
       .chapter-marker p { max-width: none; margin: 0; }
@@ -1241,14 +1884,42 @@
       .concept-card { min-height: 0; }
       .protocol { grid-template-columns: 1fr 1fr; }
       .amplitude-map { grid-template-columns: 1fr 1fr; }
-      .quantum-stage { min-height: 410px; }
+      .quantum-stage { min-height: 0; }
       .hero-card { border-radius: 25px; transform: none; }
-      .floating-note { max-width: 180px; padding: 0.65rem 0.75rem; font-size: 0.72rem; }
+      .hero-card-copy { grid-template-columns: 1fr; }
+      .pass-pill { justify-self: start; white-space: normal; }
       .lab-header { align-items: flex-start; flex-direction: column; }
       .case-tabs { width: 100%; }
       .case-tab { flex: 1; }
       .footer-inner { flex-direction: column; }
       .footer-links { justify-content: flex-start; }
+
+      .question-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .question-card { padding: 1.25rem; }
+      .question-header { grid-template-columns: 52px 1fr; gap: 0.8rem; }
+      .question-index { width: 50px; border-radius: 15px; font-size: 0.95rem; }
+      .question-header h2 { font-size: clamp(1.55rem, 7vw, 2.25rem); }
+      .question-bridge { align-items: flex-start; flex-direction: column; }
+      .state-stage { grid-template-columns: 1fr; }
+      .stepper-buttons { grid-template-columns: repeat(2, 1fr); }
+      .stepper-buttons button:nth-child(2) { border-right: 0; }
+      .stepper-buttons button:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .control-grid,
+      .verdict-controls,
+      .three-column-explain,
+      .compare-grid,
+      .evidence-triad { grid-template-columns: 1fr; }
+      .lab-heading,
+      .stress-controls { align-items: flex-start; flex-direction: column; }
+      .amplitude-visual { grid-template-columns: 1fr; }
+      .repo-explorer { grid-template-columns: 1fr; }
+      .repo-tree { border-right: 0; border-bottom: 1px solid var(--line); }
+      .timeline-buttons { grid-template-columns: repeat(2, 1fr); }
+      .timeline-buttons button:nth-child(2) { border-right: 0; }
+      .timeline-buttons button:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .reference-filter-row { align-items: flex-start; flex-direction: column; }
+      .match-grid label { grid-template-columns: 1fr; }
+      .evidence-triad article { min-height: 0; }
     }
 
     @media (max-width: 480px) {
@@ -1257,13 +1928,22 @@
       .hero { padding-top: 2.2rem; }
       h1 { font-size: clamp(3.15rem, 18vw, 5.4rem); }
       .quantum-stage { min-height: 350px; }
-      .floating-note { display: none; }
-      .hero-card-copy { align-items: flex-start; flex-direction: column; }
+      .hero-validation-steps { grid-template-columns: 1fr; }
       .protocol,
       .metric-grid { grid-template-columns: 1fr; }
       .branch-row { grid-template-columns: 62px 1fr 48px; gap: 0.5rem; }
       .amplitude-bars { grid-template-columns: 1fr; }
       .target-symbol { font-size: 2.2rem; }
+      .question-nav { grid-template-columns: 1fr; }
+      .question-nav a { min-height: 38px; }
+      .question-header { grid-template-columns: 1fr; }
+      .question-index { width: 46px; }
+      .result-strip { grid-template-columns: 1fr; }
+      .stepper-buttons { grid-template-columns: 1fr; }
+      .stepper-buttons button { border-right: 0; border-bottom: 1px solid var(--line); }
+      .timeline-buttons { grid-template-columns: 1fr; }
+      .timeline-buttons button { border-right: 0; border-bottom: 1px solid var(--line); }
+      .gate-orbit { align-items: stretch; flex-direction: column; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1290,9 +1970,10 @@
         <span>Quantum Cat Lab</span>
       </a>
       <nav class="topnav" aria-label="Lesson navigation">
-        <a href="#story">Story</a>
-        <a href="#challenge">Challenge</a>
-        <a href="#experiment">Experiment</a>
+        <a href="#questions">12 questions</a>
+        <a href="#q4">Solver</a>
+        <a href="#q5">Verdict lab</a>
+        <span class="top-progress" id="top-progress" aria-live="polite">0 / 12 explored</span>
         <a class="source-link" href="https://github.com/sunshineluyao/schrodingers-cat" target="_blank" rel="noreferrer">Source ↗</a>
       </nav>
     </div>
@@ -1302,424 +1983,400 @@
     <section class="scene hero" id="top">
       <div class="container hero-grid">
         <div class="hero-copy reveal">
-          <p class="eyebrow">A 5–8 minute, zero-prerequisite OER</p>
+          <p class="eyebrow">A 12-question, zero-prerequisite OER</p>
           <h1>Did we really prepare the <span class="glow-word">quantum cat?</span></h1>
           <p class="hero-lede">
             A validator can print <strong>PASS</strong> even when its “successful” measurement branch never occurs.
-            Learn the two numbers that separate a correct equation from a physically reachable quantum state.
+            Follow the full reasoning chain—from the cat's reduced state to an analytical solver, numerical stress tests,
+            deterministic counterexamples, and the evidence needed for a trustworthy physical claim.
           </p>
           <div class="actions">
-            <a class="button primary" href="#story">Start with the story <span aria-hidden="true">↓</span></a>
-            <a class="button" href="#experiment">Jump to the experiment</a>
+            <a class="button primary" href="#q1">Start with Q1 <span aria-hidden="true">↓</span></a>
+            <a class="button" href="#q5">Jump to the verdict lab</a>
           </div>
-          <div class="hero-meta" aria-label="Lesson attributes">
-            <span>No prior quantum knowledge</span>
-            <span>Two fixed examples</span>
-            <span>No hardware required</span>
-          </div>
+          <ul class="hero-meta" aria-label="Lesson attributes">
+            <li>All 12 README questions</li>
+            <li>Interaction in every question</li>
+            <li>No hardware required</li>
+          </ul>
         </div>
 
-        <div class="quantum-stage reveal" aria-label="Quantum cat challenge visual">
-          <div class="floating-note top">The branch must actually occur</div>
+        <div class="quantum-stage reveal">
           <div class="hero-card" data-parallax="0.055">
             <img src="assets/schrodingers-cat-banner-social-preview.png" alt="Dark-neon illustration of the atom, quantum circuit, and Schrödinger cat">
             <div class="hero-card-copy">
-              <div>
+              <div class="hero-card-summary">
                 <strong>Amplitude equality is only one check</strong>
                 <small>Physical validity also needs non-zero probability.</small>
+                <div class="hero-validation-steps" aria-label="Two physical-validity checks">
+                  <span class="validation-step"><b aria-hidden="true">1</b><span>The branch must actually occur</span></span>
+                  <span class="validation-step"><b aria-hidden="true">2</b><span>Then check the conditional cat state</span></span>
+                </div>
               </div>
               <span class="pass-pill">PASS ≠ REACHABLE</span>
             </div>
           </div>
-          <div class="floating-note bottom">Then check the conditional cat state</div>
         </div>
       </div>
     </section>
 
-    <section class="scene" id="story">
-      <div class="container chapter-grid">
-        <aside class="chapter-marker reveal" aria-label="Chapter 1">
-          <span class="chapter-number">01</span>
-          <p>The story before the code</p>
-        </aside>
-        <div class="chapter-content">
-          <p class="eyebrow reveal">First: what is this challenge about?</p>
-          <h2 class="reveal">A cat, an atom, and two qubits.</h2>
-          <p class="section-lede reveal">
-            Schrödinger's thought experiment places a radioactive atom, a mechanism, and a cat in a closed box.
-            The coding challenge replaces the real objects with <strong>two labeled quantum bits</strong> so we can study their joint state.
-          </p>
-
-          <div class="story-card glass-card reveal">
-            <div class="story-half">
-              <span class="state-label">Atom qubit A</span>
-              <div class="equation">|0⟩<sub>A</sub> = undecayed &nbsp;&nbsp; |1⟩<sub>A</sub> = decayed</div>
-              <p>The first symbol in a two-qubit label describes the atom.</p>
-            </div>
-            <div class="story-half">
-              <span class="state-label">Cat qubit C</span>
-              <div class="equation">|0⟩<sub>C</sub> = alive &nbsp;&nbsp; |1⟩<sub>C</sub> = dead</div>
-              <p>The second symbol describes the simplified “cat” system.</p>
-            </div>
-          </div>
-
-          <div class="equation reveal">
-            |ψ⟩<sub>AC</sub> = (|00⟩<sub>AC</sub> + |11⟩<sub>AC</sub>) / √2
-            <small>Read this as two correlated possibilities: atom 0 with cat 0, and atom 1 with cat 1.</small>
-          </div>
-
-          <div class="plain-note reveal">
-            <strong>Entanglement, in plain language:</strong> the atom and cat can no longer be fully described as two independent pure states. Their relationship belongs to the pair.
-          </div>
-
-          <div class="media-frame reveal">
-            <img src="assets/state_evolution.gif" alt="Animation showing the two-qubit state becoming entangled and then steered by measurement">
-            <p class="media-caption">The original repository's state-evolution animation: prepare → entangle → rotate the atom's measurement basis → post-select.</p>
-          </div>
-
-          <p class="section-lede reveal">
-            The popular claim says the unmeasured cat is already in the pure state |+⟩. The challenge begins by correcting that claim:
-            when the atom and cat are entangled, the cat alone looks like a classical 50/50 mixture, with no usable phase coherence.
-          </p>
-
-          <div class="media-frame reveal">
-            <img src="assets/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison between a mixed cat state at the center and a pure superposition on the surface">
-            <p class="media-caption">Center of the sphere: mixed state. Surface of the sphere: pure superposition. Measuring the atom in a suitable basis can steer the cat from the first description to the second.</p>
-          </div>
-
-          <p class="plain-note reveal">
-            <strong>Two views of the same change:</strong> the Bloch animation shows where the cat state moves geometrically; the density matrix shows which numerical entries change when quantum coherence is restored.
-          </p>
-
-          <div class="evidence-grid">
-            <div class="media-frame reveal">
-              <img src="assets/bloch_steering.gif" alt="Animated Bloch sphere showing the cat state steered from the mixed-state center toward the target pure state on the surface">
-              <p class="media-caption"><strong>Geometry:</strong> the unconditioned cat begins at the Bloch-sphere center. Conditioning on the chosen atom measurement outcome steers it to the surface at |+⟩.</p>
-            </div>
-            <div class="media-frame reveal">
-              <img src="assets/viz_density_matrix_city.png" alt="Before-and-after density matrices showing zero off-diagonal coherence before steering and non-zero coherence after steering">
-              <p class="media-caption"><strong>Numbers:</strong> the diagonal bars encode populations; the off-diagonal bars encode coherence. Steering creates the off-diagonal terms required for a genuine |+⟩ superposition.</p>
-            </div>
-          </div>
-        </div>
+    <section class="scene journey" id="questions">
+      <div class="container journey-intro reveal">
+        <p class="eyebrow">The Socratic route</p>
+        <h2>One claim. Twelve questions. Three kinds of evidence.</h2>
+        <p class="section-lede">
+          Each answer creates the next question. The navigator records which questions you have explored on this device;
+          the scientific argument itself remains fully visible and does not depend on stored progress.
+        </p>
       </div>
-    </section>
 
-    <section class="scene" id="concepts">
-      <div class="container chapter-grid">
-        <aside class="chapter-marker reveal" aria-label="Chapter 2">
-          <span class="chapter-number">02</span>
-          <p>Six ideas, no assumed vocabulary</p>
+      <div class="container journey-layout">
+        <aside class="question-rail glass-card" aria-label="Twelve-question navigator">
+          <div class="rail-summary">
+            <span>Learning progress</span>
+            <strong id="rail-count">0 / 12</strong>
+          </div>
+          <div class="rail-meter" aria-hidden="true"><span id="rail-meter-fill"></span></div>
+          <nav class="question-nav" aria-label="Questions in this lesson">
+            <a href="#q1" data-question-link="1"><b>Q1</b><span>What state is the cat in?</span></a>
+            <a href="#q2" data-question-link="2"><b>Q2</b><span>How can steering help?</span></a>
+            <a href="#q3" data-question-link="3"><b>Q3</b><span>What is the coding task?</span></a>
+            <a href="#q4" data-question-link="4"><b>Q4</b><span>Can we solve it exactly?</span></a>
+            <a href="#q5" data-question-link="5"><b>Q5</b><span>Does equal mean prepared?</span></a>
+            <a href="#q6" data-question-link="6"><b>Q6</b><span>Why simulate?</span></a>
+            <a href="#q7" data-question-link="7"><b>Q7</b><span>Why design a counterexample?</span></a>
+            <a href="#q8" data-question-link="8"><b>Q8</b><span>How do I reproduce it?</span></a>
+            <a href="#q9" data-question-link="9"><b>Q9</b><span>Where is everything?</span></a>
+            <a href="#q10" data-question-link="10"><b>Q10</b><span>Where did it come from?</span></a>
+            <a href="#q11" data-question-link="11"><b>Q11</b><span>What should I cite?</span></a>
+            <a href="#q12" data-question-link="12"><b>Q12</b><span>What proves what?</span></a>
+          </nav>
+          <button class="text-button" id="reset-progress" type="button">Reset my progress</button>
         </aside>
-        <div class="chapter-content">
-          <p class="eyebrow reveal">A small concept kit</p>
-          <h2 class="reveal">The words you need—nothing more.</h2>
-          <p class="section-lede reveal">
-            Each term below has one job in this experiment. You do not need a full quantum-computing course before continuing.
-          </p>
 
-          <div class="concept-grid">
-            <article class="concept-card reveal">
-              <span class="concept-icon" aria-hidden="true">|ψ⟩</span>
-              <h3>Qubit</h3>
-              <p>A system with two labeled measurement outcomes, |0⟩ and |1⟩. Before measurement, its state can carry an amplitude for each outcome.</p>
-            </article>
-            <article class="concept-card reveal">
-              <span class="concept-icon" aria-hidden="true">A</span>
-              <h3>Amplitude</h3>
-              <p>A complex number attached to a possibility. Its squared magnitude gives probability; its phase controls how possibilities interfere.</p>
-            </article>
-            <article class="concept-card reveal">
-              <span class="concept-icon" aria-hidden="true">+</span>
-              <h3>Superposition</h3>
-              <p>A coherent combination such as |+⟩ = (|0⟩ + |1⟩)/√2. “Coherent” means the relative phase is still present—not merely an unknown coin flip.</p>
-            </article>
-            <article class="concept-card reveal">
-              <span class="concept-icon" aria-hidden="true">∞</span>
-              <h3>Entanglement</h3>
-              <p>A joint state whose parts cannot each be assigned an independent pure state. The correlations belong to the combined system.</p>
-            </article>
-            <article class="concept-card reveal">
-              <span class="concept-icon" aria-hidden="true">U3</span>
-              <h3>Measurement basis</h3>
-              <p>The “direction” in which we ask a 0/1 question. A U3 gate acts like a three-knob compass that rotates this direction before measurement.</p>
-            </article>
-            <article class="concept-card reveal">
-              <span class="concept-icon" aria-hidden="true">0✓</span>
-              <h3>Post-selection</h3>
-              <p>Repeat the experiment and keep only rounds with a predeclared outcome. Here the challenge calls atom = 0 the successful exit.</p>
-            </article>
-          </div>
-
-          <div class="target-card glass-card reveal">
-            <div class="target-symbol" aria-label="target cat state ket plus">|+⟩<sub>C</sub></div>
-            <div>
-              <p class="eyebrow">The target cat state</p>
-              <h3>|+⟩<sub>C</sub> = (|0⟩<sub>C</sub> + |1⟩<sub>C</sub>) / √2</h3>
-              <p>
-                “Target” means the state chosen in advance by the protocol—not a unique state that nature automatically prefers.
-                Equal magnitude gives equal measurement probabilities; equal phase makes this specifically the |+⟩ state.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="scene" id="challenge">
-      <div class="container chapter-grid">
-        <aside class="chapter-marker reveal" aria-label="Chapter 3">
-          <span class="chapter-number">03</span>
-          <p>What PennyLane asks us to build</p>
-        </aside>
-        <div class="chapter-content">
-          <p class="eyebrow reveal">The original coding task</p>
-          <h2 class="reveal">Choose the atom's measurement compass.</h2>
-          <p class="section-lede reveal">
-            Given a two-qubit operation <strong>U</strong>, find U3 angles θ, φ, and ω so that—when the atom is measured as 0—the cat is in the uniform target state |+⟩.
-          </p>
-
-          <div class="circuit-stack">
-            <article class="circuit-card reveal">
-              <img src="assets/fig1_original_circuit.svg" alt="Original challenge circuit with Hadamard, CNOT, atom measurement rotation, and cat output">
-              <h3>The motivating circuit</h3>
-              <p>A known Bell-state preparation followed by a rotated atom measurement.</p>
-            </article>
-            <article class="circuit-card reveal">
-              <img src="assets/fig2_general_circuit.svg" alt="General challenge circuit with arbitrary two-qubit unitary U and a U3 gate on the atom">
-              <h3>The generalized task</h3>
-              <p>Replace the known preparation with arbitrary U and solve for the U3 angles.</p>
-            </article>
-          </div>
-
-          <div class="protocol reveal" aria-label="Five steps in the challenge protocol">
-            <div class="protocol-step"><span>1</span><strong>Prepare |00⟩</strong><small>Atom and cat start in label 0.</small></div>
-            <div class="protocol-step"><span>2</span><strong>Apply U</strong><small>Create a joint two-qubit state.</small></div>
-            <div class="protocol-step"><span>3</span><strong>Rotate with U3</strong><small>Choose the atom measurement basis.</small></div>
-            <div class="protocol-step"><span>4</span><strong>Measure atom</strong><small>Observe either label 0 or label 1.</small></div>
-            <div class="protocol-step"><span>5</span><strong>Keep atom = 0</strong><small>Inspect the cat only in this branch.</small></div>
-          </div>
-
-          <details class="reveal">
-            <summary>Why keep atom = 0 rather than atom = 1?</summary>
-            <div>
-              <p>
-                No law of physics makes 0 the only valid choice. It is the challenge's declared success label after the U3 rotation.
-                Another protocol could keep 1, or apply a correction after seeing 1. The important rule is to declare the branch and report how often it occurs.
-              </p>
-            </div>
-          </details>
-
-          <div class="equation reveal">
-            |ψ⟩ = A₀₀|00⟩ + A₀₁|01⟩ + A₁₀|10⟩ + A₁₁|11⟩
-            <small>The first index is the atom; the second is the cat. Each A is a complex amplitude.</small>
-          </div>
-
-          <div class="amplitude-map reveal">
-            <div class="amplitude-token"><strong>A₀₀</strong><small>atom 0 · cat 0</small></div>
-            <div class="amplitude-token"><strong>A₀₁</strong><small>atom 0 · cat 1</small></div>
-            <div class="amplitude-token"><strong>A₁₀</strong><small>atom 1 · cat 0</small></div>
-            <div class="amplitude-token"><strong>A₁₁</strong><small>atom 1 · cat 1</small></div>
-          </div>
-
-          <p class="section-lede reveal">
-            Post-selecting atom = 0 keeps the first two terms: A₀₀|00⟩ + A₀₁|01⟩.
-            The original validator checks whether the two surviving amplitudes are approximately equal. That checks the <strong>shape</strong> of the desired branch—but not whether the branch exists.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="scene" id="success">
-      <div class="container chapter-grid">
-        <aside class="chapter-marker reveal" aria-label="Chapter 4">
-          <span class="chapter-number">04</span>
-          <p>What “successful preparation” means</p>
-        </aside>
-        <div class="chapter-content">
-          <p class="eyebrow reveal">Two checks, in the right order</p>
-          <h2 class="reveal">First reach the exit. Then inspect the cat.</h2>
-          <p class="section-lede reveal">
-            A physically meaningful claim needs both <strong>success probability</strong> and <strong>conditional state quality</strong>.
-          </p>
-
-          <div class="success-grid">
-            <article class="success-card reveal" data-number="1">
-              <span class="mini-label">Reachability</span>
-              <h3>Can atom = 0 actually occur?</h3>
-              <div class="equation">p₀ = |A₀₀|² + |A₀₁|²</div>
-              <p>
-                Squared amplitude magnitude is probability. If p₀ = 0, no number of repetitions will produce the branch we planned to keep.
-              </p>
-            </article>
-            <article class="success-card reveal" data-number="2">
-              <span class="mini-label">Conditional quality</span>
-              <h3>If it occurs, is the cat |+⟩?</h3>
-              <div class="equation">F = |⟨+|cat₀⟩|²</div>
-              <p>
-                Fidelity F compares the normalized cat state in that branch with the target. F = 1 is a perfect match. When p₀ = 0, cat₀ cannot be normalized, so F is <strong>undefined—not zero</strong>.
-              </p>
-            </article>
-          </div>
-
-          <div class="final-rule reveal">
-            <strong>Complete physical-validity rule</strong>
-            <div class="rule-equation">p₀ &gt; ε &nbsp; and &nbsp; F ≈ 1</div>
-            <p>In ideal mathematics, require p₀ &gt; 0. Numerical code uses a small tolerance such as ε = 10⁻¹².</p>
-          </div>
-
-          <div class="warning-card reveal">
-            <div class="warning-icon" aria-hidden="true">!</div>
-            <p>
-              <strong>The zero-equals-zero loophole:</strong> A₀₀ = A₀₁ = 0 satisfies the equality test, yet p₀ = |0|² + |0|² = 0.
-              It is like confirming that two empty cups contain equal amounts and then claiming the drinks were prepared.
-            </p>
-          </div>
-
-          <details class="reveal">
-            <summary>Want the normalization formula?</summary>
-            <div>
-              <div class="equation">|cat₀⟩ = (A₀₀|0⟩ + A₀₁|1⟩) / √p₀</div>
-              <p>
-                Dividing by √p₀ makes the conditional state have total probability 1. When p₀ = 0, this would divide by zero; there is no physical conditional state to compare with |+⟩.
-              </p>
-            </div>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <section class="scene" id="experiment">
-      <div class="container chapter-grid">
-        <aside class="chapter-marker reveal" aria-label="Chapter 5">
-          <span class="chapter-number">05</span>
-          <p>Compare a valid case and a boundary case</p>
-        </aside>
-        <div class="chapter-content">
-          <p class="eyebrow reveal">Interactive counterexample lab</p>
-          <h2 class="reveal">Both say PASS. Only one prepares the target.</h2>
-          <p class="section-lede reveal">
-            Switch between the two fixed experiments. Watch the target branch—not only the validator badge.
-          </p>
-
-          <div class="lab-shell reveal">
-            <div class="lab-header">
-              <div class="lab-title"><span class="status-dot" aria-hidden="true"></span> Physical-validity console</div>
-              <div class="case-tabs" role="tablist" aria-label="Choose a quantum example">
-                <button class="case-tab" id="tab-bell" type="button" role="tab" aria-selected="true" aria-controls="case-panel" data-case="bell">Bell preparation</button>
-                <button class="case-tab" id="tab-cnot" type="button" role="tab" aria-selected="false" aria-controls="case-panel" data-case="cnot" tabindex="-1">CNOT on |00⟩</button>
+        <div class="question-flow">
+          <section class="question-card reveal" id="q1" data-question="1" tabindex="-1">
+            <header class="question-header">
+              <span class="question-index">Q1</span>
+              <div>
+                <p class="question-theme">Joint state vs. local state</p>
+                <h2>Is Schrödinger's cat already “alive and dead at the same time”?</h2>
               </div>
-            </div>
+            </header>
+            <p class="answer-lede"><strong>Not as a local pure state of the cat.</strong> The atom–cat pair may be in a coherent Bell state, while the cat alone is maximally mixed.</p>
+            <div class="equation">|Φ⁺⟩<sub>AC</sub> = (|00⟩ + |11⟩) / √2 &nbsp; → &nbsp; ρ<sub>C</sub> = Tr<sub>A</sub>(|Φ⁺⟩⟨Φ⁺|) = I/2</div>
 
-            <div class="lab-body" id="case-panel" role="tabpanel" aria-live="polite" aria-labelledby="tab-bell">
-              <div class="lab-visual">
-                <p class="case-kicker" id="case-kicker">Reachable target</p>
-                <h3 id="case-title">Bell preparation (H + CNOT)</h3>
-                <p id="case-summary">The joint state is entangled. The chosen atom-0 branch occurs half the time and leaves the cat exactly in |+⟩.</p>
-
-                <div class="branch-map" aria-label="Atom measurement branch probabilities">
-                  <div class="branch-row" id="branch-zero-row">
-                    <span>atom = 0</span>
-                    <div class="branch-track"><div class="branch-fill" id="branch-zero-fill"></div></div>
-                    <output id="branch-zero-value">50%</output>
-                  </div>
-                  <div class="branch-row" id="branch-one-row">
-                    <span>atom = 1</span>
-                    <div class="branch-track"><div class="branch-fill" id="branch-one-fill"></div></div>
-                    <output id="branch-one-value">50%</output>
-                  </div>
-                </div>
-
-                <div class="amplitude-bars" aria-label="Target-branch amplitudes">
-                  <div class="amp-box">
-                    <div class="amp-head"><span>A₀₀</span><output id="amp-zero-value">0.5</output></div>
-                    <div class="amp-track"><div class="amp-fill" id="amp-zero-fill"></div></div>
-                  </div>
-                  <div class="amp-box">
-                    <div class="amp-head"><span>A₀₁</span><output id="amp-one-value">0.5</output></div>
-                    <div class="amp-track"><div class="amp-fill" id="amp-one-fill"></div></div>
-                  </div>
+            <div class="interactive-shell state-lab" role="group" aria-label="Compare the mixed cat state with the target pure state">
+              <div class="segmented" role="tablist" aria-label="Choose a cat state">
+                <button type="button" role="tab" aria-selected="true" data-state-view="mixed">Unconditioned cat</button>
+                <button type="button" role="tab" aria-selected="false" data-state-view="plus">Target |+⟩</button>
+              </div>
+              <div class="state-stage" aria-live="polite">
+                <div class="bloch-disc" aria-hidden="true"><span class="bloch-axis x"></span><span class="bloch-axis y"></span><span class="state-dot" id="state-dot"></span></div>
+                <div>
+                  <p class="mini-label" id="state-kind">Mixed state · Bloch-sphere center</p>
+                  <h3 id="state-title">The cat has 50/50 populations but no local coherence.</h3>
+                  <div class="matrix" id="state-matrix">[ 0.5&nbsp;&nbsp;0.0 ]<br>[ 0.0&nbsp;&nbsp;0.5 ]</div>
+                  <p id="state-copy">The off-diagonal entries vanish. This is not the pure superposition |+⟩, even though both give 50/50 measurement probabilities in the computational basis.</p>
                 </div>
               </div>
+            </div>
 
-              <div class="lab-results">
-                <div class="metric-grid">
-                  <div class="metric">
-                    <span class="metric-label">Original equality test</span>
-                    <output id="metric-challenge">PASS</output>
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Post-selection p₀</span>
-                    <output id="metric-probability">50%</output>
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Conditional fidelity F</span>
-                    <output id="metric-fidelity">1.000</output>
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Physical verdict</span>
-                    <output class="reachable" id="metric-verdict">Reachable</output>
-                  </div>
-                </div>
-                <p class="case-explanation" id="case-explanation">
-                  Equality is non-zero: A₀₀ = A₀₁ = 0.5. Therefore p₀ = 0.25 + 0.25 = 0.5, and the normalized conditional cat state is |+⟩.
-                </p>
+            <div class="evidence-grid compact-media">
+              <figure class="media-frame"><img src="assets/viz_bloch_myth_vs_reality.png" alt="Bloch sphere comparison between a mixed state at the center and the pure plus state on the surface"><figcaption class="media-caption">Geometry distinguishes the mixed center from the pure surface.</figcaption></figure>
+              <figure class="media-frame"><img src="assets/viz_density_matrix_city.png" alt="Density matrices showing absent and restored off-diagonal coherence"><figcaption class="media-caption">The density matrix distinguishes probabilities from coherence.</figcaption></figure>
+            </div>
+            <div class="question-bridge"><strong>So how can the cat become a genuine superposition?</strong><a href="#q2">Ask Q2 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q2" data-question="2" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q2</span><div><p class="question-theme">Conditional preparation</p><h2>If the cat is mixed, how can it become a genuine superposition?</h2></div></header>
+            <p class="answer-lede"><strong>By quantum steering.</strong> Rotate the atom's measurement basis, measure the atom, and condition on a predeclared outcome.</p>
+            <div class="stepper-shell interactive-shell">
+              <div class="stepper-buttons" role="tablist" aria-label="Steering protocol steps">
+                <button type="button" role="tab" aria-selected="true" data-steer-step="0"><span>1</span>Prepare</button>
+                <button type="button" role="tab" aria-selected="false" data-steer-step="1"><span>2</span>Entangle</button>
+                <button type="button" role="tab" aria-selected="false" data-steer-step="2"><span>3</span>Rotate</button>
+                <button type="button" role="tab" aria-selected="false" data-steer-step="3"><span>4</span>Post-select</button>
+              </div>
+              <div class="stepper-stage" aria-live="polite">
+                <img src="assets/state_evolution.gif" alt="Animation of preparation, entanglement, atom-basis rotation, and post-selection">
+                <div><p class="mini-label" id="steer-label">Step 1 of 4</p><h3 id="steer-title">Prepare |00⟩.</h3><p id="steer-copy">The atom and cat begin in their reference states. Nothing is entangled yet.</p></div>
               </div>
             </div>
-          </div>
+            <div class="plain-note"><strong>What post-selection does not mean:</strong> it does not guarantee that the retained outcome occurs, and it does not enable faster-than-light signalling. It describes a conditional subensemble.</div>
+            <figure class="media-frame narrow-media"><img src="assets/bloch_steering.gif" alt="Teaching animation from the mixed-state center of the Bloch sphere to the pure plus state on its surface"><figcaption class="media-caption">This is a teaching interpolation between state descriptions—not a literal continuous-time trajectory of one measured cat.</figcaption></figure>
+            <div class="question-bridge"><strong>What exactly must the code choose?</strong><a href="#q3">Ask Q3 ↓</a></div>
+          </section>
 
-          <details class="reveal">
-            <summary>Why CNOT on |00⟩ is such a useful counterexample</summary>
-            <div>
-              <p>
-                CNOT is capable of creating entanglement for some inputs, but capability is not the same as what happens to this input:
-                CNOT|00⟩ = |00⟩. The solver can rotate the atom so the checked atom-0 amplitudes become A₀₀ = A₀₁ = 0.
-                The equality test passes, but the selected branch has probability zero.
-              </p>
+          <section class="question-card reveal" id="q3" data-question="3" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q3</span><div><p class="question-theme">The PennyLane task</p><h2>What exactly did the coding challenge ask us to solve?</h2></div></header>
+            <p class="answer-lede">Given a two-qubit unitary <strong>U</strong>, choose the atom's U3 angles so the atom-0 branch has equal cat amplitudes.</p>
+            <div class="interactive-shell circuit-explorer">
+              <div class="segmented" role="tablist" aria-label="Compare challenge circuits">
+                <button type="button" role="tab" aria-selected="true" data-circuit-view="original">Motivating circuit</button>
+                <button type="button" role="tab" aria-selected="false" data-circuit-view="general">Generalized task</button>
+              </div>
+              <img id="circuit-image" src="assets/fig1_original_circuit.svg" alt="Original challenge circuit with Bell-state preparation and an atom measurement rotation">
+              <div aria-live="polite"><h3 id="circuit-title">A known Bell-state preparation</h3><p id="circuit-copy">The original example uses Hadamard plus CNOT, then rotates the atom before measurement.</p></div>
             </div>
-          </details>
+            <ul class="protocol" aria-label="Five steps in the challenge protocol">
+              <li class="protocol-step"><span>1</span><strong>Prepare |00⟩</strong><small>Set the reference input.</small></li>
+              <li class="protocol-step"><span>2</span><strong>Apply U</strong><small>Create the joint state.</small></li>
+              <li class="protocol-step"><span>3</span><strong>Apply U3</strong><small>Choose the atom basis.</small></li>
+              <li class="protocol-step"><span>4</span><strong>Measure A</strong><small>Observe 0 or 1.</small></li>
+              <li class="protocol-step"><span>5</span><strong>Keep A = 0</strong><small>Inspect the cat branch.</small></li>
+            </ul>
+            <div class="equation">U|00⟩ = a|00⟩ + b|01⟩ + c|10⟩ + d|11⟩</div>
+            <div class="equation">A₀₀ = a cos(θ/2) − c e<sup>iλ</sup> sin(θ/2) &nbsp;&nbsp; A₀₁ = b cos(θ/2) − d e<sup>iλ</sup> sin(θ/2)</div>
+            <p>The original validator asks only whether <strong>A₀₀ ≈ A₀₁</strong>. If that branch is non-zero, its normalized cat state is |+⟩ up to a global phase. The qualification “if non-zero” drives the rest of this lesson.</p>
+            <div class="question-bridge"><strong>Do we need numerical optimization to find θ and λ?</strong><a href="#q4">Ask Q4 ↓</a></div>
+          </section>
 
-          <div class="quiz-card glass-card reveal">
-            <p class="eyebrow">One-question understanding check</p>
-            <h3>If A₀₀ and A₀₁ are equal but p₀ = 0, did we prepare the target cat state?</h3>
-            <div class="quiz-options" role="group" aria-label="Choose an answer">
-              <button class="quiz-option" type="button" data-answer="yes">Yes</button>
-              <button class="quiz-option" type="button" data-answer="no">No</button>
+          <section class="question-card reveal" id="q4" data-question="4" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q4</span><div><p class="question-theme">Closed-form solution</p><h2>Can the measurement basis be solved analytically?</h2></div></header>
+            <p class="answer-lede"><strong>Yes—no optimizer is required.</strong> Let α = a − b and β = c − d; then align their phases with λ and balance their magnitudes with θ.</p>
+            <div class="equation">α cos(θ/2) = β e<sup>iλ</sup> sin(θ/2)</div>
+            <div class="interactive-shell solver-lab">
+              <div class="lab-heading"><div><p class="mini-label">Live analytical solver</p><h3>Change α and β, then inspect the residual.</h3></div><span class="live-pill">Runs in your browser</span></div>
+              <div class="preset-row" role="group" aria-label="Analytical solver presets">
+                <button type="button" data-solver-preset="general">General case</button>
+                <button type="button" data-solver-preset="alpha-zero">α = 0</button>
+                <button type="button" data-solver-preset="beta-zero">β = 0</button>
+                <button type="button" data-solver-preset="both-zero">α = β = 0</button>
+              </div>
+              <div class="control-grid">
+                <div class="range-control"><label for="alpha-mag">|α|</label><output id="alpha-mag-value" for="alpha-mag">0.70</output><input id="alpha-mag" type="range" min="0" max="1" step="0.01" value="0.70"></div>
+                <div class="range-control"><label for="alpha-phase">arg(α)</label><output id="alpha-phase-value" for="alpha-phase">0.80 rad</output><input id="alpha-phase" type="range" min="-3.1416" max="3.1416" step="0.01" value="0.80"></div>
+                <div class="range-control"><label for="beta-mag">|β|</label><output id="beta-mag-value" for="beta-mag">0.45</output><input id="beta-mag" type="range" min="0" max="1" step="0.01" value="0.45"></div>
+                <div class="range-control"><label for="beta-phase">arg(β)</label><output id="beta-phase-value" for="beta-phase">−1.20 rad</output><input id="beta-phase" type="range" min="-3.1416" max="3.1416" step="0.01" value="-1.20"></div>
+              </div>
+              <div class="result-strip" aria-live="polite">
+                <div><span>Case</span><strong id="solver-case">General</strong></div>
+                <div><span>θ</span><strong id="solver-theta">1.998 rad</strong><small id="solver-theta-deg">114.5°</small></div>
+                <div><span>λ</span><strong id="solver-lambda">2.000 rad</strong><small id="solver-lambda-deg">114.6°</small></div>
+                <div><span>Equality residual</span><strong class="good" id="solver-residual">0.00e+0</strong></div>
+              </div>
             </div>
-            <p class="quiz-feedback" id="quiz-feedback" aria-live="polite">Choose an answer.</p>
-          </div>
+            <div class="three-column-explain">
+              <div><strong>λ aligns phase</strong><p>λ = arg(α) − arg(β).</p></div>
+              <div><strong>θ balances magnitude</strong><p>θ = 2 arctan(|α| / |β|).</p></div>
+              <div><strong>φ is free here</strong><p>It changes the discarded atom-1 branch, not the equality constraint.</p></div>
+            </div>
+            <p class="plain-note"><strong>Important boundary:</strong> this solver proves the amplitude-equality condition, including degenerate cases. It does not yet prove that the selected branch has non-zero probability.</p>
+            <div class="question-bridge"><strong>If the formula makes the amplitudes equal, is the cat prepared?</strong><a href="#q5">Ask Q5 ↓</a></div>
+          </section>
 
-          <div class="takeaway-grid">
-            <article class="takeaway-card glass-card reveal">
-              <h3>What every result should report</h3>
-              <ol>
-                <li><strong>Validator condition:</strong> what algebraic equality was checked?</li>
-                <li><strong>Success probability p₀:</strong> how often does the kept branch occur?</li>
-                <li><strong>Conditional fidelity F:</strong> how close is the normalized branch to the target?</li>
-              </ol>
-            </article>
-            <article class="takeaway-card glass-card reveal">
-              <h3>Why 100/100 random tests are not a proof</h3>
-              <ul>
-                <li>Haar-random inputs almost surely avoid exact zero-probability boundaries.</li>
-                <li>Identity or CNOT on |00⟩ can expose a failure mode that random sampling misses.</li>
-                <li>Use deterministic edge cases alongside randomized stress tests.</li>
+          <section class="question-card reveal" id="q5" data-question="5" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q5</span><div><p class="question-theme">Physical validity</p><h2>If the amplitudes are equal, have we prepared the cat?</h2></div></header>
+            <p class="answer-lede"><strong>Not necessarily.</strong> Equality is algebraic. Preparation also requires a non-zero retained branch and a high-fidelity conditional state.</p>
+            <div class="equation">p₀ = |A₀₀|² + |A₀₁|² &nbsp;&nbsp; |cat₀⟩ = (A₀₀|0⟩ + A₀₁|1⟩)/√p₀ &nbsp;&nbsp; F = |⟨+|cat₀⟩|²</div>
+            <div class="interactive-shell verdict-lab">
+              <div class="lab-heading"><div><p class="mini-label">Amplitude verdict lab</p><h3>Move the branch amplitudes—or start from a preset.</h3></div><span class="live-pill">Equality + probability + fidelity</span></div>
+              <div class="preset-row" role="group" aria-label="Verdict lab presets">
+                <button type="button" data-verdict-preset="bell">Bell success</button>
+                <button type="button" data-verdict-preset="cnot">CNOT 0 = 0</button>
+                <button type="button" data-verdict-preset="phase">Equal magnitude, wrong phase</button>
+                <button type="button" data-verdict-preset="unequal">Unequal amplitudes</button>
+              </div>
+              <div class="control-grid verdict-controls">
+                <div class="range-control"><label for="a00-mag">|A₀₀|</label><output id="a00-mag-value" for="a00-mag">0.50</output><input id="a00-mag" type="range" min="0" max="0.75" step="0.01" value="0.50"></div>
+                <div class="range-control"><label for="a01-mag">|A₀₁|</label><output id="a01-mag-value" for="a01-mag">0.50</output><input id="a01-mag" type="range" min="0" max="0.75" step="0.01" value="0.50"></div>
+                <div class="range-control"><label for="relative-phase">Relative phase δ</label><output id="relative-phase-value" for="relative-phase">0.00 rad</output><input id="relative-phase" type="range" min="-3.1416" max="3.1416" step="0.01" value="0"></div>
+              </div>
+              <div class="amplitude-visual" aria-hidden="true"><div><span>A₀₀</span><i id="a00-bar"></i></div><div><span>A₀₁</span><i id="a01-bar"></i></div></div>
+              <div class="result-strip four-results" aria-live="polite">
+                <div><span>Equality test</span><strong id="verdict-equality">PASS</strong><small id="verdict-residual">residual 0.00</small></div>
+                <div><span>Post-selection p₀</span><strong id="verdict-p0">0.500</strong></div>
+                <div><span>Conditional F</span><strong id="verdict-fidelity">1.000</strong></div>
+                <div><span>Physical verdict</span><strong class="good" id="verdict-status">Reachable target</strong></div>
+              </div>
+              <p class="lab-explanation" id="verdict-explanation">The equal non-zero amplitudes create a branch with p₀ = 0.5. After normalization, the conditional cat is exactly |+⟩.</p>
+            </div>
+            <div class="warning-card"><div class="warning-icon" aria-hidden="true">!</div><p><strong>The zero-equals-zero loophole:</strong> A₀₀ = A₀₁ = 0 passes equality, but p₀ = 0. The conditional state cannot be normalized, so fidelity is <strong>N/A—not zero</strong>.</p></div>
+            <div class="question-bridge"><strong>If the formula is exact, why run numerical tests?</strong><a href="#q6">Ask Q6 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q6" data-question="6" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q6</span><div><p class="question-theme">Implementation validation</p><h2>If we have a derivation, why run numerical simulations?</h2></div></header>
+            <p class="answer-lede">Because a correct formula can still be coded incorrectly. Randomized tests check extraction, phase alignment, magnitude balancing, and floating-point behavior across typical complex inputs.</p>
+            <div class="interactive-shell stress-lab">
+              <div class="lab-heading"><div><p class="mini-label">Seeded browser stress test</p><h3>Sample Haar-distributed first columns and solve them.</h3></div><span class="live-pill">Reproducible</span></div>
+              <div class="stress-controls">
+                <label>Seed <input id="stress-seed" type="number" value="2026" min="1" max="2147483646" inputmode="numeric"></label>
+                <div class="preset-row" role="group" aria-label="Choose number of randomized trials">
+                  <button type="button" data-stress-trials="1">Run 1</button>
+                  <button type="button" data-stress-trials="50">Run 50</button>
+                  <button type="button" data-stress-trials="100">Run 100</button>
+                </div>
+              </div>
+              <canvas id="stress-canvas" width="760" height="300" role="img" aria-label="Scatter plot of solved theta and lambda values for randomized trials"></canvas>
+              <div class="result-strip four-results" aria-live="polite">
+                <div><span>Trials</span><strong id="stress-count">0</strong></div>
+                <div><span>Equality passes</span><strong id="stress-passes">—</strong></div>
+                <div><span>Maximum residual</span><strong id="stress-error">—</strong></div>
+                <div><span>p₀ = 0 boundaries found</span><strong id="stress-boundaries">—</strong></div>
+              </div>
+              <p class="lab-explanation" id="stress-explanation">Choose a run size. The same seed produces the same sample. Only U's first column matters here; a normalized complex-Gaussian vector has the Haar first-column distribution.</p>
+            </div>
+            <div class="compare-grid">
+              <article><span class="mini-label">What it checks</span><h3>Implementation reliability</h3><p>Does the code reproduce the derived equality across diverse typical inputs to machine precision?</p></article>
+              <article><span class="mini-label">What it cannot prove</span><h3>Universality or semantics</h3><p>A sample is not a proof, and random sampling almost surely misses exact zero-probability boundaries.</p></article>
+            </div>
+            <div class="question-bridge"><strong>What asks the question random sampling almost never asks?</strong><a href="#q7">Ask Q7 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q7" data-question="7" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q7</span><div><p class="question-theme">Semantic boundary testing</p><h2>Why test a deterministic counterexample if 100/100 random tests pass?</h2></div></header>
+            <p class="answer-lede">Exact zero-probability branches form a measure-zero boundary. A deliberately chosen gate/input pair reaches that boundary immediately.</p>
+            <div class="interactive-shell boundary-lab">
+              <div class="lab-heading"><div><p class="mini-label">Boundary-case comparator</p><h3>Choose a preparation and inspect what it does to |00⟩.</h3></div><span class="live-pill">Fixed semantic tests</span></div>
+              <div class="preset-row boundary-buttons" role="group" aria-label="Choose a deterministic case">
+                <button type="button" data-boundary-case="bell">Bell preparation</button>
+                <button type="button" data-boundary-case="identity">Identity</button>
+                <button type="button" data-boundary-case="cnot">CNOT</button>
+                <button type="button" data-boundary-case="swap">SWAP</button>
+                <button type="button" data-boundary-case="phase">Phase gate</button>
+              </div>
+              <div class="boundary-panel" aria-live="polite">
+                <div class="gate-orbit"><span>|00⟩</span><i>→</i><strong id="boundary-output">(|00⟩ + |11⟩)/√2</strong></div>
+                <div class="result-strip four-results">
+                  <div><span>Equality</span><strong id="boundary-equality">PASS</strong></div>
+                  <div><span>A₀₀, A₀₁</span><strong id="boundary-amplitudes">0.5, 0.5</strong></div>
+                  <div><span>p₀</span><strong id="boundary-p0">0.5</strong></div>
+                  <div><span>Interpretation</span><strong class="good" id="boundary-verdict">Reachable</strong></div>
+                </div>
+                <p id="boundary-copy">Bell preparation creates Schmidt rank 2 and a non-zero atom-0 branch that normalizes to |+⟩.</p>
+              </div>
+            </div>
+            <div class="quiz-card glass-card">
+              <p class="eyebrow">Quick semantic check</p>
+              <h3>What does the CNOT counterexample invalidate?</h3>
+              <div class="quiz-options" role="group" aria-label="Choose what the counterexample invalidates">
+                <button class="quiz-option" type="button" data-boundary-answer="formula">The closed-form equality formula</button>
+                <button class="quiz-option" type="button" data-boundary-answer="meaning">The claim that every equality PASS is a prepared state</button>
+              </div>
+              <p class="quiz-feedback" id="boundary-feedback" aria-live="polite">Choose an answer.</p>
+            </div>
+            <div class="question-bridge"><strong>How can another reader reproduce every layer?</strong><a href="#q8">Ask Q8 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q8" data-question="8" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q8</span><div><p class="question-theme">Reproducibility</p><h2>How can I explore and reproduce the project?</h2></div></header>
+            <p class="answer-lede">Choose the route that matches your goal: interact immediately, reproduce locally, or regenerate the evidence assets.</p>
+            <div class="interactive-shell repro-lab">
+              <div class="segmented repro-tabs" role="tablist" aria-label="Choose a reproduction route">
+                <button type="button" role="tab" aria-selected="true" data-repro-route="colab">Colab notebook</button>
+                <button type="button" role="tab" aria-selected="false" data-repro-route="local">Local verification</button>
+                <button type="button" role="tab" aria-selected="false" data-repro-route="figures">Regenerate figures</button>
+              </div>
+              <div class="repro-panel" aria-live="polite">
+                <div><p class="mini-label" id="repro-label">Fastest route</p><h3 id="repro-title">Open the original PennyLane notebook in Colab.</h3><p id="repro-copy">Run the challenge solution without configuring a local Python environment.</p></div>
+                <pre><code id="repro-code">Open the notebook, choose Runtime → Run all, then inspect the returned U3 parameters and state vector.</code></pre>
+                <div class="copy-row"><button class="button compact-button" id="copy-repro" type="button">Copy instructions</button><a class="button primary compact-button" id="repro-link" href="https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb" target="_blank" rel="noreferrer">Open Colab ↗</a><span id="repro-copy-status" aria-live="polite"></span></div>
+              </div>
+            </div>
+            <p class="plain-note"><strong>Scope check:</strong> <code>quantum_sandbox.py</code> runs the NumPy solver, Bell case, reduced-state check, and randomized stress test. The deterministic zero-probability examples are demonstrated in this OER and documented in the README.</p>
+            <div class="question-bridge"><strong>Which file contains which part of the project?</strong><a href="#q9">Ask Q9 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q9" data-question="9" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q9</span><div><p class="question-theme">Repository anatomy</p><h2>Where is everything in the repository?</h2></div></header>
+            <p class="answer-lede">The repository separates the original solution, reproducible analysis, explanatory documents, and the deployable OER.</p>
+            <div class="interactive-shell repo-explorer">
+              <ul class="repo-tree" aria-label="Repository map">
+                <li><button type="button" data-repo-node="notebook">📓 Revisiting_Schrodinger's_Cat.ipynb</button></li>
+                <li><button type="button" data-repo-node="scripts">⚙️ scripts/</button></li>
+                <li><button type="button" data-repo-node="assets">🖼️ assets/</button></li>
+                <li><button type="button" data-repo-node="docs">📚 docs/</button></li>
+                <li><button type="button" data-repo-node="oer">🧭 oer/</button></li>
+                <li><button type="button" data-repo-node="records">🏅 certificates/ + Citation.cff</button></li>
               </ul>
-            </article>
-          </div>
-
-          <div class="closing glass-card reveal">
-            <p class="eyebrow">The whole lesson in one sentence</p>
-            <h2>Equal is necessary. Reachable is essential.</h2>
-            <p>
-              Passing an amplitude-equality test does not by itself prove that a post-selected quantum state can be prepared.
-              Check that the branch occurs, then check the state inside it.
-            </p>
-            <div class="actions">
-              <a class="button primary" href="https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb" target="_blank" rel="noreferrer">Open the original notebook ↗</a>
-              <a class="button" href="https://pennylane.ai/challenges/schrodingers_cat" target="_blank" rel="noreferrer">Read the PennyLane challenge ↗</a>
+              <div class="repo-detail" aria-live="polite"><p class="mini-label" id="repo-kind">Original challenge artifact</p><h3 id="repo-title">The PennyLane notebook</h3><p id="repo-copy">Contains the original challenge solution, circuit execution, and returned U3 parameters. It remains the historical core of the project.</p><a id="repo-link" href="https://github.com/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb" target="_blank" rel="noreferrer">Open this path on GitHub ↗</a></div>
             </div>
-          </div>
+            <div class="question-bridge"><strong>Which work is original, and which is the later audit?</strong><a href="#q10">Ask Q10 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q10" data-question="10" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q10</span><div><p class="question-theme">Provenance</p><h2>What is the project's provenance?</h2></div></header>
+            <p class="answer-lede">The project began as a PennyLane challenge completed during WISER 2026; the physical-validity audit and interactive OER are the later educational extension.</p>
+            <div class="interactive-shell provenance-lab">
+              <div class="timeline-buttons" role="tablist" aria-label="Explore project provenance">
+                <button type="button" role="tab" aria-selected="true" data-provenance="challenge"><span>01</span>Challenge</button>
+                <button type="button" role="tab" aria-selected="false" data-provenance="wiser"><span>02</span>WISER 2026</button>
+                <button type="button" role="tab" aria-selected="false" data-provenance="audit"><span>03</span>Physical-validity audit</button>
+                <button type="button" role="tab" aria-selected="false" data-provenance="oer"><span>04</span>Interactive OER</button>
+              </div>
+              <div class="provenance-panel" aria-live="polite"><p class="mini-label" id="provenance-label">Starting point</p><h3 id="provenance-title">PennyLane “Revisiting Schrödinger's Cat” challenge</h3><p id="provenance-copy">The original task asks for U3 parameters satisfying the atom-0 equal-amplitude condition.</p><a id="provenance-link" href="https://pennylane.ai/challenges/schrodingers_cat" target="_blank" rel="noreferrer">Open the official challenge ↗</a></div>
+            </div>
+            <div class="compare-grid">
+              <article><span class="mini-label">Preserved artifact</span><h3>Original notebook</h3><p>The historical PennyLane solution is retained rather than silently rewritten.</p></article>
+              <article><span class="mini-label">Later contribution</span><h3>Trustworthy verification layer</h3><p>The README, scripts, figures, and Space distinguish an algebraic PASS from a realizable conditional state.</p></article>
+            </div>
+            <div class="question-bridge"><strong>How should this work be read and cited?</strong><a href="#q11">Ask Q11 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q11" data-question="11" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q11</span><div><p class="question-theme">Reading and citation</p><h2>What should I read or cite?</h2></div></header>
+            <p class="answer-lede">Read the primary challenge and gate documentation for implementation context, then the standard texts and methodological sources for steering, post-selection, and random matrices.</p>
+            <div class="reference-tools">
+              <div class="reference-filter-row"><label for="reference-filter">Filter the reading list</label><select id="reference-filter"><option value="all">All sources</option><option value="primary">Primary project sources</option><option value="quantum">Quantum foundations</option><option value="method">Random-matrix method</option></select></div>
+              <ol class="reference-list" id="reference-list">
+                <li data-reference-kind="primary"><a href="https://pennylane.ai/challenges/schrodingers_cat" target="_blank" rel="noreferrer">PennyLane: Revisiting Schrödinger's Cat challenge</a></li>
+                <li data-reference-kind="primary"><a href="https://docs.pennylane.ai/en/stable/code/api/pennylane.U3.html" target="_blank" rel="noreferrer">PennyLane U3 gate documentation</a></li>
+                <li data-reference-kind="quantum">Nielsen &amp; Chuang, <em>Quantum Computation and Quantum Information</em> (2010), ch. 2 &amp; 4</li>
+                <li data-reference-kind="quantum">Schrödinger (1935), “Die gegenwärtige Situation in der Quantenmechanik”</li>
+                <li data-reference-kind="quantum">Wiseman &amp; Milburn, <em>Quantum Measurement and Control</em> (2009)</li>
+                <li data-reference-kind="method">Mezzadri (2007), “How to generate random matrices from the classical compact groups”</li>
+              </ol>
+            </div>
+            <div class="interactive-shell citation-lab">
+              <div class="segmented" role="tablist" aria-label="Choose citation format"><button type="button" role="tab" aria-selected="true" data-citation-format="bibtex">BibTeX</button><button type="button" role="tab" aria-selected="false" data-citation-format="cff">Citation.cff summary</button></div>
+              <pre><code id="citation-code">@misc{zhang2026schrodingerscat,
+  author = {Zhang, Luyao (Sunshine)},
+  title  = {Revisiting Schrödinger's Cat: A Complete Guide},
+  year   = {2026},
+  url    = {https://github.com/sunshineluyao/schrodingers-cat},
+  note   = {Closed-form solution, randomized verification,
+            deterministic counterexamples, and interactive OER}
+}</code></pre>
+              <div class="copy-row"><button class="button compact-button" id="copy-citation" type="button">Copy citation</button><a class="button compact-button" href="https://github.com/sunshineluyao/schrodingers-cat/blob/main/Citation.cff" target="_blank" rel="noreferrer">Open Citation.cff ↗</a><span id="citation-copy-status" aria-live="polite"></span></div>
+            </div>
+            <div class="question-bridge"><strong>How do all the pieces become one trustworthy conclusion?</strong><a href="#q12">Ask Q12 ↓</a></div>
+          </section>
+
+          <section class="question-card reveal" id="q12" data-question="12" tabindex="-1">
+            <header class="question-header"><span class="question-index">Q12</span><div><p class="question-theme">Evidence synthesis</p><h2>What do the three forms of evidence establish together?</h2></div></header>
+            <p class="answer-lede">They answer different questions. None can substitute for the other two.</p>
+            <div class="evidence-triad">
+              <article><span class="evidence-number">01</span><h3>Mathematical derivation</h3><p>Proves the closed form satisfies the stated equal-amplitude problem, including degenerate cases.</p><small>Cannot alone check code or branch reachability.</small></article>
+              <article><span class="evidence-number">02</span><h3>Randomized simulation</h3><p>Checks that the implementation works across diverse typical complex inputs to floating-point precision.</p><small>Cannot prove universality or cover measure-zero boundaries reliably.</small></article>
+              <article><span class="evidence-number">03</span><h3>Deterministic counterexample</h3><p>Tests whether a validator's PASS has the claimed physical meaning at an adversarial boundary.</p><small>Cannot replace the general proof or broad implementation test.</small></article>
+            </div>
+            <div class="interactive-shell synthesis-lab">
+              <div class="lab-heading"><div><p class="mini-label">Final evidence challenge</p><h3>Match each scientific question to the evidence that answers it.</h3></div><span class="live-pill">3 matches</span></div>
+              <div class="match-grid">
+                <label><span>What proves the equality formula?</span><select id="match-proof"><option value="">Choose evidence…</option><option value="derivation">Mathematical derivation</option><option value="simulation">Randomized simulation</option><option value="counterexample">Deterministic counterexample</option></select></label>
+                <label><span>What checks the implementation broadly?</span><select id="match-code"><option value="">Choose evidence…</option><option value="derivation">Mathematical derivation</option><option value="simulation">Randomized simulation</option><option value="counterexample">Deterministic counterexample</option></select></label>
+                <label><span>What tests the physical meaning of PASS?</span><select id="match-meaning"><option value="">Choose evidence…</option><option value="derivation">Mathematical derivation</option><option value="simulation">Randomized simulation</option><option value="counterexample">Deterministic counterexample</option></select></label>
+              </div>
+              <div class="copy-row"><button class="button primary compact-button" id="check-synthesis" type="button">Check the evidence chain</button><span id="synthesis-feedback" aria-live="polite">Complete all three matches.</span></div>
+            </div>
+            <div class="closing glass-card">
+              <p class="eyebrow">The complete lesson</p>
+              <h2>All three are indispensable.</h2>
+              <p>
+                Mathematical derivation proves the equal-amplitude formula; randomized simulation checks its implementation;
+                deterministic counterexamples test its physical meaning.
+              </p>
+              <p class="completion-line" id="completion-line" aria-live="polite">Explore all 12 questions to complete the journey.</p>
+              <div class="actions">
+                <a class="button primary" href="https://github.com/sunshineluyao/schrodingers-cat" target="_blank" rel="noreferrer">Read the full repository ↗</a>
+                <a class="button" href="https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb" target="_blank" rel="noreferrer">Open the notebook ↗</a>
+                <a class="button" href="#top">Return to the beginning ↑</a>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </section>
@@ -1778,6 +2435,10 @@
         }, { threshold: 0.13, rootMargin: '0px 0px -6% 0px' });
         revealItems.forEach((item) => observer.observe(item));
       }
+
+      // The legacy five-chapter controls are retained below for backward-compatible
+      // diffs, but the 12-question lesson uses the controller in the next script.
+      if (!document.getElementById('case-panel')) return;
 
       const cases = {
         bell: {
@@ -1904,6 +2565,631 @@
             feedback.innerHTML = '<strong>Not quite.</strong> The equality 0 = 0 passes algebraically, but there is no successful experimental round to keep.';
           }
         });
+      });
+    })();
+  </script>
+  <script>
+    (() => {
+      const byId = (id) => document.getElementById(id);
+      const all = (selector, root = document) => [...root.querySelectorAll(selector)];
+      const setText = (id, value) => { const node = byId(id); if (node) node.textContent = value; };
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const tau = Math.PI * 2;
+      const epsilon = 1e-12;
+      let synthesisSolved = false;
+
+      const setSelected = (buttons, selected) => {
+        buttons.forEach((button) => {
+          const active = button === selected;
+          button.setAttribute('aria-selected', String(active));
+          if (button.getAttribute('role') === 'tab') button.tabIndex = active ? 0 : -1;
+        });
+      };
+
+      all('[role="tablist"]').forEach((list) => {
+        const tabs = all('[role="tab"]', list);
+        tabs.forEach((tab, index) => {
+          tab.addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            let next = index;
+            if (event.key === 'Home') next = 0;
+            else if (event.key === 'End') next = tabs.length - 1;
+            else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % tabs.length;
+            else next = (index - 1 + tabs.length) % tabs.length;
+            tabs[next].click();
+            tabs[next].focus();
+          });
+        });
+      });
+
+      // Learning progress: records questions that actually enter the reading viewport.
+      const progressKey = 'quantum-cat-oer-progress-v2';
+      let visited = new Set();
+      try {
+        const stored = JSON.parse(localStorage.getItem(progressKey) || '[]');
+        visited = new Set(stored.filter((item) => Number.isInteger(item) && item >= 1 && item <= 12));
+      } catch (error) {
+        visited = new Set();
+      }
+
+      const saveProgress = () => {
+        try { localStorage.setItem(progressKey, JSON.stringify([...visited].sort((a, b) => a - b))); } catch (error) { /* Storage can be disabled. */ }
+      };
+
+      const renderProgress = () => {
+        const count = visited.size;
+        const label = count + ' / 12';
+        setText('rail-count', label);
+        setText('top-progress', label + ' explored');
+        const fill = byId('rail-meter-fill');
+        if (fill) fill.style.width = ((count / 12) * 100).toFixed(2) + '%';
+        all('[data-question-link]').forEach((link) => link.classList.toggle('is-visited', visited.has(Number(link.dataset.questionLink))));
+        all('[data-question]').forEach((card) => card.dataset.complete = String(visited.has(Number(card.dataset.question))));
+        const completion = byId('completion-line');
+        if (completion) {
+          if (count === 12 && synthesisSolved) completion.textContent = 'Journey complete: all 12 questions explored and the three-evidence chain solved.';
+          else if (count === 12) completion.textContent = 'All 12 questions explored. Complete the evidence challenge above to close the loop.';
+          else completion.textContent = count + ' of 12 questions explored. Continue the Socratic path to complete the journey.';
+        }
+      };
+
+      const markVisited = (question) => {
+        if (!visited.has(question)) {
+          visited.add(question);
+          saveProgress();
+          renderProgress();
+        }
+      };
+
+      all('[data-question-link]').forEach((link) => {
+        link.addEventListener('click', () => markVisited(Number(link.dataset.questionLink)));
+      });
+
+      const questionCards = all('[data-question]');
+      if ('IntersectionObserver' in window) {
+        const questionObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const question = Number(entry.target.dataset.question);
+            markVisited(question);
+            all('[data-question-link]').forEach((link) => link.classList.toggle('is-active', Number(link.dataset.questionLink) === question));
+          });
+        }, { threshold: 0.01, rootMargin: '-22% 0px -62% 0px' });
+        questionCards.forEach((card) => questionObserver.observe(card));
+      }
+
+      const resetButton = byId('reset-progress');
+      if (resetButton) {
+        resetButton.addEventListener('click', () => {
+          visited.clear();
+          synthesisSolved = false;
+          saveProgress();
+          renderProgress();
+          setText('synthesis-feedback', 'Progress reset. Complete all three matches when you reach Q12.');
+        });
+      }
+      renderProgress();
+
+      // Q1: mixed state versus target pure state.
+      const stateViews = {
+        mixed: {
+          kind: 'Mixed state · Bloch-sphere center',
+          title: 'The cat has 50/50 populations but no local coherence.',
+          matrix: '[ 0.5  0.0 ]\n[ 0.0  0.5 ]',
+          copy: 'The off-diagonal entries vanish. This is not the pure superposition |+⟩, even though both give 50/50 measurement probabilities in the computational basis.'
+        },
+        plus: {
+          kind: 'Pure state · Bloch-sphere surface',
+          title: 'The target has 50/50 populations and maximum positive coherence.',
+          matrix: '[ 0.5  0.5 ]\n[ 0.5  0.5 ]',
+          copy: 'The off-diagonal entries preserve relative phase. That coherence is what distinguishes |+⟩ from an ordinary unknown 50/50 alternative.'
+        }
+      };
+
+      const stateButtons = all('[data-state-view]');
+      const selectStateView = (key) => {
+        const data = stateViews[key];
+        const active = stateButtons.find((button) => button.dataset.stateView === key);
+        setSelected(stateButtons, active);
+        byId('state-dot').classList.toggle('is-plus', key === 'plus');
+        setText('state-kind', data.kind);
+        setText('state-title', data.title);
+        setText('state-matrix', data.matrix);
+        setText('state-copy', data.copy);
+      };
+      stateButtons.forEach((button) => button.addEventListener('click', () => selectStateView(button.dataset.stateView)));
+
+      // Q2: steering protocol stepper.
+      const steeringSteps = [
+        ['Step 1 of 4', 'Prepare |00⟩.', 'The atom and cat begin in their reference states. Nothing is entangled yet.'],
+        ['Step 2 of 4', 'Apply U and create a joint state.', 'For Bell preparation, the correlations belong to the atom–cat pair; the cat alone is mixed.'],
+        ['Step 3 of 4', 'Rotate the atom with U3(θ, φ, λ).', 'The three-angle gate chooses the basis in which the atom will be measured.'],
+        ['Step 4 of 4', 'Measure and retain atom = 0.', 'Only if this outcome has non-zero probability can its conditional cat state be normalized and compared with |+⟩.']
+      ];
+      const steeringButtons = all('[data-steer-step]');
+      const selectSteeringStep = (index) => {
+        const active = steeringButtons.find((button) => Number(button.dataset.steerStep) === index);
+        setSelected(steeringButtons, active);
+        setText('steer-label', steeringSteps[index][0]);
+        setText('steer-title', steeringSteps[index][1]);
+        setText('steer-copy', steeringSteps[index][2]);
+      };
+      steeringButtons.forEach((button) => button.addEventListener('click', () => selectSteeringStep(Number(button.dataset.steerStep))));
+
+      // Q3: circuit comparison.
+      const circuitViews = {
+        original: {
+          src: 'assets/fig1_original_circuit.svg',
+          alt: 'Original challenge circuit with Bell-state preparation and an atom measurement rotation',
+          title: 'A known Bell-state preparation',
+          copy: 'The motivating circuit uses Hadamard plus CNOT, then rotates the atom before measurement.'
+        },
+        general: {
+          src: 'assets/fig2_general_circuit.svg',
+          alt: 'Generalized challenge circuit with arbitrary two-qubit U and a U3 gate on the atom',
+          title: 'An arbitrary two-qubit operation U',
+          copy: 'The generalized task receives U as input and returns U3 angles that satisfy the atom-0 equal-amplitude assertion.'
+        }
+      };
+      const circuitButtons = all('[data-circuit-view]');
+      const selectCircuit = (key) => {
+        const active = circuitButtons.find((button) => button.dataset.circuitView === key);
+        const data = circuitViews[key];
+        setSelected(circuitButtons, active);
+        const image = byId('circuit-image');
+        image.src = data.src;
+        image.alt = data.alt;
+        setText('circuit-title', data.title);
+        setText('circuit-copy', data.copy);
+      };
+      circuitButtons.forEach((button) => button.addEventListener('click', () => selectCircuit(button.dataset.circuitView)));
+
+      // Shared complex-number helpers.
+      const complex = (re, im) => ({ re, im });
+      const fromPolar = (magnitude, phase) => complex(magnitude * Math.cos(phase), magnitude * Math.sin(phase));
+      const subtract = (left, right) => complex(left.re - right.re, left.im - right.im);
+      const multiply = (left, right) => complex(left.re * right.re - left.im * right.im, left.re * right.im + left.im * right.re);
+      const scale = (value, factor) => complex(value.re * factor, value.im * factor);
+      const magnitude = (value) => Math.hypot(value.re, value.im);
+      const normalizeAngle = (angle) => {
+        let value = (angle + Math.PI) % tau;
+        if (value < 0) value += tau;
+        return value - Math.PI;
+      };
+      const solveEquality = (alpha, beta) => {
+        const absAlpha = magnitude(alpha);
+        const absBeta = magnitude(beta);
+        let theta = 0;
+        let lambda = 0;
+        let kind = 'General';
+        if (absAlpha <= epsilon && absBeta <= epsilon) {
+          kind = 'Both zero · every θ, λ satisfies equality';
+        } else if (absAlpha <= epsilon) {
+          theta = 0;
+          kind = 'Degenerate α = 0';
+        } else if (absBeta <= epsilon) {
+          theta = Math.PI;
+          kind = 'Degenerate β = 0';
+        } else {
+          theta = 2 * Math.atan2(absAlpha, absBeta);
+          lambda = normalizeAngle(Math.atan2(alpha.im, alpha.re) - Math.atan2(beta.im, beta.re));
+        }
+        const lhs = scale(alpha, Math.cos(theta / 2));
+        const rhs = scale(multiply(beta, fromPolar(1, lambda)), Math.sin(theta / 2));
+        return { theta, lambda, kind, residual: magnitude(subtract(lhs, rhs)) };
+      };
+      const formatRadians = (value) => (Math.abs(value) < 0.0005 ? '0.000' : value.toFixed(3)).replace('-', '−') + ' rad';
+      const formatDegrees = (value) => (value * 180 / Math.PI).toFixed(1).replace('-', '−') + '°';
+
+      // Q4: analytical solver.
+      const solverInputs = {
+        alphaMag: byId('alpha-mag'),
+        alphaPhase: byId('alpha-phase'),
+        betaMag: byId('beta-mag'),
+        betaPhase: byId('beta-phase')
+      };
+      const solverPresetValues = {
+        general: [0.70, 0.80, 0.45, -1.20],
+        'alpha-zero': [0, 0, 0.65, 1.10],
+        'beta-zero': [0.65, -0.70, 0, 0],
+        'both-zero': [0, 0, 0, 0]
+      };
+      const updateSolver = () => {
+        const values = {
+          alphaMag: Number(solverInputs.alphaMag.value),
+          alphaPhase: Number(solverInputs.alphaPhase.value),
+          betaMag: Number(solverInputs.betaMag.value),
+          betaPhase: Number(solverInputs.betaPhase.value)
+        };
+        setText('alpha-mag-value', values.alphaMag.toFixed(2));
+        setText('alpha-phase-value', formatRadians(values.alphaPhase));
+        setText('beta-mag-value', values.betaMag.toFixed(2));
+        setText('beta-phase-value', formatRadians(values.betaPhase));
+        const solved = solveEquality(fromPolar(values.alphaMag, values.alphaPhase), fromPolar(values.betaMag, values.betaPhase));
+        setText('solver-case', solved.kind);
+        setText('solver-theta', formatRadians(solved.theta));
+        setText('solver-theta-deg', formatDegrees(solved.theta));
+        setText('solver-lambda', formatRadians(solved.lambda));
+        setText('solver-lambda-deg', formatDegrees(solved.lambda));
+        setText('solver-residual', solved.residual.toExponential(2));
+      };
+      Object.values(solverInputs).forEach((input) => input.addEventListener('input', () => {
+        all('[data-solver-preset]').forEach((button) => button.classList.remove('is-selected'));
+        updateSolver();
+      }));
+      all('[data-solver-preset]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const values = solverPresetValues[button.dataset.solverPreset];
+          [solverInputs.alphaMag, solverInputs.alphaPhase, solverInputs.betaMag, solverInputs.betaPhase].forEach((input, index) => { input.value = values[index]; });
+          all('[data-solver-preset]').forEach((item) => item.classList.toggle('is-selected', item === button));
+          updateSolver();
+        });
+      });
+      updateSolver();
+
+      // Q5: equality, probability, and conditional fidelity verdict lab.
+      const verdictInputs = { a00: byId('a00-mag'), a01: byId('a01-mag'), phase: byId('relative-phase') };
+      const verdictPresets = {
+        bell: [0.50, 0.50, 0],
+        cnot: [0, 0, 0],
+        phase: [0.50, 0.50, Math.PI],
+        unequal: [0.65, 0.25, 0]
+      };
+      const updateVerdict = () => {
+        const a00 = Number(verdictInputs.a00.value);
+        const a01 = Number(verdictInputs.a01.value);
+        const phase = Number(verdictInputs.phase.value);
+        const residual = Math.sqrt(Math.max(0, a00 * a00 + a01 * a01 - 2 * a00 * a01 * Math.cos(phase)));
+        const p0 = a00 * a00 + a01 * a01;
+        const equalityPass = residual <= 1e-8;
+        const fidelity = p0 > epsilon ? clamp((a00 * a00 + a01 * a01 + 2 * a00 * a01 * Math.cos(phase)) / (2 * p0), 0, 1) : null;
+        setText('a00-mag-value', a00.toFixed(2));
+        setText('a01-mag-value', a01.toFixed(2));
+        setText('relative-phase-value', formatRadians(phase));
+        setText('verdict-equality', equalityPass ? 'PASS' : 'FAIL');
+        setText('verdict-residual', 'residual ' + residual.toFixed(3));
+        setText('verdict-p0', p0.toFixed(3));
+        setText('verdict-fidelity', fidelity === null ? 'N/A' : fidelity.toFixed(3));
+        const status = byId('verdict-status');
+        status.className = '';
+        if (p0 <= epsilon) {
+          status.textContent = 'Unreachable';
+          status.classList.add('bad');
+          setText('verdict-explanation', 'The equality 0 = 0 passes, but p₀ = 0. No retained branch exists to normalize, so fidelity is undefined.');
+        } else if (equalityPass && fidelity > 1 - 1e-9) {
+          status.textContent = 'Reachable target';
+          status.classList.add('good');
+          setText('verdict-explanation', 'The amplitudes are equal, phase-aligned, and non-zero. The branch occurs and normalizes exactly to |+⟩.');
+        } else {
+          status.textContent = 'Not the target';
+          status.classList.add('warn');
+          setText('verdict-explanation', 'This branch occurs, but its normalized cat state is not exactly |+⟩. Inspect both the complex equality residual and fidelity.');
+        }
+        byId('verdict-equality').className = equalityPass ? 'good' : 'bad';
+        byId('a00-bar').style.width = ((a00 / 0.75) * 100).toFixed(1) + '%';
+        byId('a01-bar').style.width = ((a01 / 0.75) * 100).toFixed(1) + '%';
+        byId('a01-bar').style.filter = 'hue-rotate(' + ((phase / Math.PI) * 150).toFixed(0) + 'deg)';
+      };
+      Object.values(verdictInputs).forEach((input) => input.addEventListener('input', () => {
+        all('[data-verdict-preset]').forEach((button) => button.classList.remove('is-selected'));
+        updateVerdict();
+      }));
+      all('[data-verdict-preset]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const values = verdictPresets[button.dataset.verdictPreset];
+          verdictInputs.a00.value = values[0];
+          verdictInputs.a01.value = values[1];
+          verdictInputs.phase.value = values[2];
+          all('[data-verdict-preset]').forEach((item) => item.classList.toggle('is-selected', item === button));
+          updateVerdict();
+        });
+      });
+      updateVerdict();
+
+      // Q6: seeded Haar-first-column stress test.
+      const makeRandom = (seedValue) => {
+        let state = Math.abs(Math.trunc(seedValue)) % 2147483647;
+        if (state === 0) state = 1;
+        return () => {
+          state = state * 16807 % 2147483647;
+          return (state - 1) / 2147483646;
+        };
+      };
+      const gaussian = (random) => {
+        const u1 = Math.max(random(), Number.EPSILON);
+        const u2 = random();
+        return Math.sqrt(-2 * Math.log(u1)) * Math.cos(tau * u2);
+      };
+      const sampleHaarColumn = (random) => {
+        const values = Array.from({ length: 4 }, () => complex(gaussian(random), gaussian(random)));
+        const norm = Math.sqrt(values.reduce((sum, value) => sum + value.re * value.re + value.im * value.im, 0));
+        return values.map((value) => scale(value, 1 / norm));
+      };
+      const branchValues = (column, theta, lambda) => {
+        const [a, b, c, d] = column;
+        const cosine = Math.cos(theta / 2);
+        const sinePhase = scale(fromPolar(1, lambda), Math.sin(theta / 2));
+        const a00 = subtract(scale(a, cosine), multiply(c, sinePhase));
+        const a01 = subtract(scale(b, cosine), multiply(d, sinePhase));
+        return { a00, a01, residual: magnitude(subtract(a00, a01)), p0: magnitude(a00) ** 2 + magnitude(a01) ** 2 };
+      };
+      const drawStressPlot = (points) => {
+        const canvas = byId('stress-canvas');
+        const context = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        context.clearRect(0, 0, width, height);
+        context.fillStyle = '#080d1d';
+        context.fillRect(0, 0, width, height);
+        context.strokeStyle = 'rgba(148,163,184,0.16)';
+        context.lineWidth = 1;
+        for (let index = 0; index <= 4; index += 1) {
+          const x = 50 + index * (width - 80) / 4;
+          const y = 24 + index * (height - 62) / 4;
+          context.beginPath(); context.moveTo(x, 20); context.lineTo(x, height - 34); context.stroke();
+          context.beginPath(); context.moveTo(48, y); context.lineTo(width - 24, y); context.stroke();
+        }
+        context.fillStyle = '#8fa3bf';
+        context.font = '12px system-ui, sans-serif';
+        context.fillText('θ: 0 → π', width - 90, height - 12);
+        context.fillText('λ = +π', 7, 30);
+        context.fillText('λ = −π', 7, height - 36);
+        points.forEach((point, index) => {
+          const x = 50 + (point.theta / Math.PI) * (width - 80);
+          const y = 24 + ((Math.PI - point.lambda) / tau) * (height - 62);
+          context.beginPath();
+          context.arc(x, y, points.length === 1 ? 7 : 3.4, 0, tau);
+          context.fillStyle = index % 3 === 0 ? '#22d3ee' : index % 3 === 1 ? '#8b5cf6' : '#e879f9';
+          context.globalAlpha = 0.78;
+          context.fill();
+        });
+        context.globalAlpha = 1;
+        if (!points.length) {
+          context.fillStyle = '#a5b4ce';
+          context.font = '16px system-ui, sans-serif';
+          context.textAlign = 'center';
+          context.fillText('Choose Run 1, Run 50, or Run 100', width / 2, height / 2);
+          context.textAlign = 'start';
+        }
+      };
+      const runStressTest = (trials) => {
+        const seed = Number(byId('stress-seed').value) || 2026;
+        const random = makeRandom(seed);
+        const points = [];
+        let passes = 0;
+        let boundaries = 0;
+        let maxResidual = 0;
+        for (let index = 0; index < trials; index += 1) {
+          const column = sampleHaarColumn(random);
+          const alpha = subtract(column[0], column[1]);
+          const beta = subtract(column[2], column[3]);
+          const solved = solveEquality(alpha, beta);
+          const branch = branchValues(column, solved.theta, solved.lambda);
+          maxResidual = Math.max(maxResidual, branch.residual);
+          if (branch.residual < 1e-12) passes += 1;
+          if (branch.p0 <= epsilon) boundaries += 1;
+          points.push({ theta: solved.theta, lambda: solved.lambda, residual: branch.residual });
+        }
+        drawStressPlot(points);
+        setText('stress-count', String(trials));
+        setText('stress-passes', passes + ' / ' + trials);
+        setText('stress-error', maxResidual.toExponential(2));
+        setText('stress-boundaries', String(boundaries));
+        setText('stress-explanation', 'Seed ' + seed + ' produced ' + trials + ' Haar-distributed first columns. The equality residual stayed at floating-point scale; exact p₀ = 0 boundaries were ' + (boundaries ? 'observed.' : 'not sampled, as expected for a measure-zero set.'));
+        all('[data-stress-trials]').forEach((button) => button.classList.toggle('is-selected', Number(button.dataset.stressTrials) === trials));
+      };
+      all('[data-stress-trials]').forEach((button) => button.addEventListener('click', () => runStressTest(Number(button.dataset.stressTrials))));
+      drawStressPlot([]);
+
+      // Q7: deterministic boundary cases.
+      const boundaryCases = {
+        bell: {
+          output: '(|00⟩ + |11⟩)/√2',
+          amplitudes: '0.5, 0.5',
+          p0: '0.5',
+          verdict: 'Reachable',
+          verdictClass: 'good',
+          copy: 'Bell preparation creates Schmidt rank 2 and a non-zero atom-0 branch that normalizes to |+⟩.'
+        },
+        identity: {
+          output: '|00⟩',
+          amplitudes: '0, 0',
+          p0: '0',
+          verdict: 'Unreachable',
+          verdictClass: 'bad',
+          copy: 'Identity leaves |00⟩ unchanged. The equality solver can move all probability to atom = 1, making the checked atom-0 amplitudes both zero.'
+        },
+        cnot: {
+          output: '|00⟩',
+          amplitudes: '0, 0',
+          p0: '0',
+          verdict: 'Unreachable',
+          verdictClass: 'bad',
+          copy: 'CNOT can entangle other inputs, but CNOT|00⟩ = |00⟩. Gate capability does not imply entanglement for this input.'
+        },
+        swap: {
+          output: '|00⟩',
+          amplitudes: '0, 0',
+          p0: '0',
+          verdict: 'Unreachable',
+          verdictClass: 'bad',
+          copy: 'SWAP exchanges the two zero labels and therefore still returns |00⟩. The same zero-branch loophole appears.'
+        },
+        phase: {
+          output: '|00⟩',
+          amplitudes: '0, 0',
+          p0: '0',
+          verdict: 'Unreachable',
+          verdictClass: 'bad',
+          copy: 'A phase acting on the |0⟩ input leaves this first column unchanged up to an irrelevant global phase, so the selected branch can still vanish.'
+        }
+      };
+      const selectBoundary = (key) => {
+        const data = boundaryCases[key];
+        setText('boundary-output', data.output);
+        setText('boundary-amplitudes', data.amplitudes);
+        setText('boundary-p0', data.p0);
+        setText('boundary-verdict', data.verdict);
+        setText('boundary-copy', data.copy);
+        byId('boundary-verdict').className = data.verdictClass;
+        all('[data-boundary-case]').forEach((button) => button.classList.toggle('is-selected', button.dataset.boundaryCase === key));
+      };
+      all('[data-boundary-case]').forEach((button) => button.addEventListener('click', () => selectBoundary(button.dataset.boundaryCase)));
+      selectBoundary('bell');
+      const boundaryAnswers = all('[data-boundary-answer]');
+      boundaryAnswers.forEach((button) => {
+        button.addEventListener('click', () => {
+          boundaryAnswers.forEach((item) => item.classList.remove('correct', 'incorrect'));
+          const correct = button.dataset.boundaryAnswer === 'meaning';
+          button.classList.add(correct ? 'correct' : 'incorrect');
+          setText('boundary-feedback', correct
+            ? 'Correct. The formula still solves equality; the counterexample invalidates the semantic leap from equality PASS to physical preparation.'
+            : 'Not quite. The equality formula still works. What fails is the claim that every algebraic PASS names a realizable conditional state.');
+        });
+      });
+
+      // Q8: reproduction routes and copy utility.
+      const reproductionRoutes = {
+        colab: {
+          label: 'Fastest route',
+          title: 'Open the original PennyLane notebook in Colab.',
+          copy: 'Run the challenge solution without configuring a local Python environment.',
+          code: 'Open the notebook, choose Runtime → Run all, then inspect the returned U3 parameters and state vector.',
+          link: 'https://colab.research.google.com/github/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb',
+          linkLabel: 'Open Colab ↗'
+        },
+        local: {
+          label: 'Verification route',
+          title: 'Run the NumPy solver and 100-sample stress test locally.',
+          copy: 'This route checks the closed form without requiring a quantum device.',
+          code: 'git clone https://github.com/sunshineluyao/schrodingers-cat.git\ncd schrodingers-cat\npython -m pip install -r requirements.txt\npython scripts/quantum_sandbox.py',
+          link: 'https://github.com/sunshineluyao/schrodingers-cat/blob/main/scripts/quantum_sandbox.py',
+          linkLabel: 'Inspect the script ↗'
+        },
+        figures: {
+          label: 'Asset route',
+          title: 'Regenerate the static figures and GIF animations.',
+          copy: 'The generator recreates the visual evidence used in the README and this lesson.',
+          code: 'python -m pip install -r requirements.txt\npython scripts/generate_figures.py',
+          link: 'https://github.com/sunshineluyao/schrodingers-cat/blob/main/scripts/generate_figures.py',
+          linkLabel: 'Inspect the generator ↗'
+        }
+      };
+      const reproButtons = all('[data-repro-route]');
+      const selectReproductionRoute = (key) => {
+        const data = reproductionRoutes[key];
+        setSelected(reproButtons, reproButtons.find((button) => button.dataset.reproRoute === key));
+        setText('repro-label', data.label);
+        setText('repro-title', data.title);
+        setText('repro-copy', data.copy);
+        setText('repro-code', data.code);
+        const link = byId('repro-link');
+        link.href = data.link;
+        link.textContent = data.linkLabel;
+        setText('repro-copy-status', '');
+      };
+      reproButtons.forEach((button) => button.addEventListener('click', () => selectReproductionRoute(button.dataset.reproRoute)));
+
+      const copyText = async (text) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (error) {
+          const area = document.createElement('textarea');
+          area.value = text;
+          area.style.position = 'fixed';
+          area.style.opacity = '0';
+          document.body.appendChild(area);
+          area.select();
+          const copied = document.execCommand('copy');
+          area.remove();
+          return copied;
+        }
+      };
+      byId('copy-repro').addEventListener('click', async () => {
+        const copied = await copyText(byId('repro-code').textContent);
+        setText('repro-copy-status', copied ? 'Copied.' : 'Select the text above and copy it manually.');
+      });
+
+      // Q9: repository map.
+      const repoNodes = {
+        notebook: ['Original challenge artifact', 'The PennyLane notebook', 'Contains the original challenge solution, circuit execution, and returned U3 parameters. It remains the historical core of the project.', 'https://github.com/sunshineluyao/schrodingers-cat/blob/main/Revisiting_Schrodinger%27s_Cat.ipynb'],
+        scripts: ['Reproducible computation', 'scripts/', 'quantum_sandbox.py implements the NumPy solver and stress test; generate_figures.py recreates the visual assets.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/scripts'],
+        assets: ['Visual evidence', 'assets/', 'Hero art, circuit diagrams, explanatory figures, and GitHub-safe GIF animations are organized by role.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/assets'],
+        docs: ['Concept support', 'docs/', 'The longer quantum-computing guide supplies English explanations and a Chinese quick overview.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/docs'],
+        oer: ['Deployable lesson', 'oer/', 'A self-contained static Hugging Face Space: this index file, its Space configuration, and copied deployment assets.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/oer'],
+        records: ['Provenance and citation', 'certificates/ + Citation.cff', 'Certificates document the challenge/program context; Citation.cff powers GitHub’s citation interface.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/certificates']
+      };
+      const selectRepoNode = (key) => {
+        const data = repoNodes[key];
+        setText('repo-kind', data[0]);
+        setText('repo-title', data[1]);
+        setText('repo-copy', data[2]);
+        byId('repo-link').href = data[3];
+        all('[data-repo-node]').forEach((button) => button.classList.toggle('is-selected', button.dataset.repoNode === key));
+      };
+      all('[data-repo-node]').forEach((button) => button.addEventListener('click', () => selectRepoNode(button.dataset.repoNode)));
+      selectRepoNode('notebook');
+
+      // Q10: provenance timeline.
+      const provenance = {
+        challenge: ['Starting point', 'PennyLane “Revisiting Schrödinger\'s Cat” challenge', 'The original task asks for U3 parameters satisfying the atom-0 equal-amplitude condition.', 'https://pennylane.ai/challenges/schrodingers_cat', 'Open the official challenge ↗'],
+        wiser: ['Learning context', 'WISER 2026 summer program', 'The challenge was completed in the WISER learning program; the repository preserves the corresponding records.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/certificates', 'View the certificate records ↗'],
+        audit: ['Scientific extension', 'Physical-validity audit', 'The later analysis asks whether the validator’s equality PASS always denotes a non-zero, normalizable conditional state.', 'https://github.com/sunshineluyao/schrodingers-cat#q5--if-the-amplitudes-are-equal-have-we-prepared-the-cat', 'Read the audit in the README ↗'],
+        oer: ['Public explanation', 'Twelve-question interactive OER', 'This Space turns the complete README reasoning chain into inspectable labs, reproduction routes, and an evidence-synthesis challenge.', 'https://github.com/sunshineluyao/schrodingers-cat/tree/main/oer', 'Inspect the OER source ↗']
+      };
+      const provenanceButtons = all('[data-provenance]');
+      const selectProvenance = (key) => {
+        const data = provenance[key];
+        setSelected(provenanceButtons, provenanceButtons.find((button) => button.dataset.provenance === key));
+        setText('provenance-label', data[0]);
+        setText('provenance-title', data[1]);
+        setText('provenance-copy', data[2]);
+        const link = byId('provenance-link');
+        link.href = data[3];
+        link.textContent = data[4];
+      };
+      provenanceButtons.forEach((button) => button.addEventListener('click', () => selectProvenance(button.dataset.provenance)));
+
+      // Q11: reading filter and citation formats.
+      byId('reference-filter').addEventListener('change', (event) => {
+        all('[data-reference-kind]').forEach((item) => { item.hidden = event.target.value !== 'all' && item.dataset.referenceKind !== event.target.value; });
+      });
+      const citations = {
+        bibtex: '@misc{zhang2026schrodingerscat,\n  author = {Zhang, Luyao (Sunshine)},\n  title  = {Revisiting Schrödinger\'s Cat: A Complete Guide},\n  year   = {2026},\n  url    = {https://github.com/sunshineluyao/schrodingers-cat},\n  note   = {Closed-form solution, randomized verification,\n            deterministic counterexamples, and interactive OER}\n}',
+        cff: 'cff-version: 1.2.0\nmessage: Please cite this software using these metadata.\ntitle: Revisiting Schrödinger\'s Cat: A Complete Guide\nauthors:\n  - family-names: Zhang\n    given-names: Luyao (Sunshine)\nyear: 2026\nrepository-code: https://github.com/sunshineluyao/schrodingers-cat'
+      };
+      const citationButtons = all('[data-citation-format]');
+      citationButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          setSelected(citationButtons, button);
+          setText('citation-code', citations[button.dataset.citationFormat]);
+          setText('citation-copy-status', '');
+        });
+      });
+      byId('copy-citation').addEventListener('click', async () => {
+        const copied = await copyText(byId('citation-code').textContent);
+        setText('citation-copy-status', copied ? 'Copied.' : 'Select the citation above and copy it manually.');
+      });
+
+      // Q12: final evidence match.
+      byId('check-synthesis').addEventListener('click', () => {
+        const values = {
+          proof: byId('match-proof').value,
+          code: byId('match-code').value,
+          meaning: byId('match-meaning').value
+        };
+        if (!values.proof || !values.code || !values.meaning) {
+          setText('synthesis-feedback', 'Complete all three matches before checking.');
+          return;
+        }
+        const correct = values.proof === 'derivation' && values.code === 'simulation' && values.meaning === 'counterexample';
+        synthesisSolved = correct;
+        setText('synthesis-feedback', correct
+          ? 'Correct. Proof, implementation validation, and semantic boundary testing form one complete verification chain.'
+          : 'Not yet. Ask three different questions: what proves the formula, what checks the code broadly, and what probes the physical meaning of PASS?');
+        renderProgress();
       });
     })();
   </script>

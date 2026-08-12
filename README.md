@@ -44,7 +44,7 @@ $$
 The *joint* atom–cat system is in a coherent entangled superposition. But if we ignore the atom and examine only the cat, we trace the atom out:
 
 $$
-\rho_C=\operatorname{Tr}_A\!\left(|\Phi^+\rangle\langle\Phi^+|\right)
+\rho_C=\mathrm{Tr}_A\!\left(|\Phi^+\rangle\langle\Phi^+|\right)
 =\frac12|0\rangle\langle0|+\frac12|1\rangle\langle1|
 =\frac{I}{2}.
 $$

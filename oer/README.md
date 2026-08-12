@@ -9,7 +9,7 @@ fullWidth: true
 header: mini
 pinned: false
 license: mit
-short_description: A zero-prerequisite OER on post-selection and physical validity.
+short_description: 12-question quantum steering and physical validity OER
 tags:
   - quantum-computing
   - education
@@ -22,16 +22,25 @@ This self-contained static Open Educational Resource (OER) is a beginner-friendl
 follow-up to PennyLane's *Revisiting Schrödinger's Cat* challenge.
 
 The original challenge asks for a measurement basis that makes two amplitudes in
-the post-selected atom-0 branch equal. This OER asks one additional physical
-question: **does that branch occur with non-zero probability?**
+the post-selected atom-0 branch equal. This OER develops that task into the same
+12-question Socratic path as the repository README: from the cat's reduced state
+and quantum steering through the closed-form solution, physical-validity audit,
+reproducibility, provenance, citation, and final evidence synthesis.
 
-The complete validity check reports both:
+The complete physical-validity check reports:
 
-1. the post-selection probability, `p₀`; and
-2. the conditional fidelity with the target cat state, `F`.
+1. the original complex-amplitude equality residual;
+2. the post-selection probability, `p₀`; and
+3. the conditional fidelity with the target cat state, `F`.
 
-The OER is intentionally small: one page, two fixed examples, one understanding
-check, and no backend or external JavaScript dependencies.
+Interactive features include a mixed-vs-pure state explorer, a four-step steering
+walkthrough, circuit comparison, live analytical U3 solver, amplitude verdict lab,
+seeded 1/50/100-sample numerical stress test, deterministic boundary-case
+comparator, reproduction routes, repository map, provenance timeline, citation
+tools, persistent question progress, and a final three-evidence matching challenge.
+
+The OER remains self-contained: one static page, the repository's existing visual
+assets, no backend, and no external JavaScript dependency.
 
 ## Local preview
 
